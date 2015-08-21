@@ -1,2 +1,0 @@
-# VisualRx
-Visual Rx Monitoring
