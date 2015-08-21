@@ -15,6 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGets", "NuGets", "{AA1FE0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setups", "Setups", "{8F40642F-BDEE-40ED-95AE-FF13B130DAF8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BDFCDDA3-4B12-4FF8-8B34-80794256FCFC}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\AssemblyInfo.Common.cs = Solution Items\AssemblyInfo.Common.cs
+		Solution Items\Reactive.Contrib.snk = Solution Items\Reactive.Contrib.snk
+		Solution Items\VisualRx.Version.targets = Solution Items\VisualRx.Version.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
