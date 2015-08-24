@@ -2,8 +2,8 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Bnaya.Eshet")]
-[assembly: AssemblyProduct("Visual Rx V4.5")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyProduct("Visual Rx")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
