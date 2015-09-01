@@ -21,7 +21,7 @@ namespace VisualRx.Contracts
         /// Send a balk.
         /// </summary>
         /// <param name="items">The items.</param>
-        Task OnBulkSend(IEnumerable<MarbleBase> items);
+        Task OnBulkSend(IEnumerable<Marble> items);
 
         /// <summary>
         /// Gets the monitor provider kind (unique like WebApi, WCF, ETW, File, etc.).

@@ -1,6 +1,8 @@
 ﻿#region Using
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -19,7 +21,7 @@ namespace VisualRx.Contracts
     //[KnownType(typeof(MarbleNext))]
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     [DebuggerDisplay("{Name}: {Kind}, {Value}, {Offset}")]
-    public abstract class MarbleBase
+    public class Marble
     {
         #region Private / Protected Fields
 
@@ -30,14 +32,19 @@ namespace VisualRx.Contracts
 
         #region Constructors
 
+        [Obsolete("Don't use, this constructor is for serialization only", true)]
+        internal Marble()
+        {
+                
+        }
         /// <summary>
-        /// Initializes a new instance of the <see cref="MarbleBase" /> class.
+        /// Initializes a new instance of the <see cref="Marble" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="kind">The kind.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
-        internal MarbleBase(
+        internal Marble(
             string name,
             MarbleKind kind,
             TimeSpan elapsed,
@@ -67,7 +74,7 @@ namespace VisualRx.Contracts
         /// The value.
         /// </value>
         [JsonProperty]
-        public JsonToken Value { get; private set; }
+        public JToken Value { get; private set; }
 
         #endregion // Value
 
@@ -97,6 +104,7 @@ namespace VisualRx.Contracts
         /// type of the marble
         /// </summary>
         [JsonProperty]
+        [JsonConverter(typeof(StringEnumConverter))]
         public MarbleKind Kind { get; private set; }
 
         #endregion Kind
@@ -148,10 +156,18 @@ namespace VisualRx.Contracts
 
         #region Methods
 
-        public T GetValue<T>()
-        {
-            throw new NotImplementedException();
-        }
+        #region GetValue
+
+        /// <summary>
+        /// Get the internal value cast to generic type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetValue<T>() => Value.ToObject<T>();
+
+        #endregion // GetValue
+
+        #region CreateNext
 
         /// <summary>
         /// Creates the specified name.
@@ -163,14 +179,20 @@ namespace VisualRx.Contracts
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static MarbleBase CreateNext<T>(
+        public static Marble CreateNext<T>(
                         string name,
                         T item,
                         TimeSpan elapsed,
                         string machineName)
         {
-            throw new NotImplementedException();
+            var msg = new Marble(name, MarbleKind.OnNext, elapsed, machineName);
+            msg.Value = JToken.FromObject(item);
+            return msg;
         }
+
+        #endregion // CreateNext
+
+        #region CreateError
 
         /// <summary>
         /// Creates the error.
@@ -181,13 +203,18 @@ namespace VisualRx.Contracts
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static MarbleBase CreateError(string name,
+        public static Marble CreateError(string name,
                         Exception ex,
                         TimeSpan elapsed,
                         string machineName)
         {
-            throw new NotImplementedException();
+            var msg = new Marble(name, MarbleKind.OnError, elapsed, machineName);
+            msg.Value = JToken.FromObject(ex);
+            return msg;
         }
+        #endregion // CreateError
+
+        #region CreateCompleted
 
         /// <summary>
         /// Creates the completed.
@@ -197,11 +224,15 @@ namespace VisualRx.Contracts
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static MarbleBase CreateCompleted(string name,
+        public static Marble CreateCompleted(string name,
             TimeSpan elapsed, string machineName)
         {
-            throw new NotImplementedException();
-        }
+            var msg = new Marble(name, MarbleKind.OnCompleted, elapsed, machineName);
+            return msg;
+        } 
+
+        #endregion // CreateCompleted
+
         #endregion // Methods
     }
 }

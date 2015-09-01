@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Contracts", "Common\VisualRx.Contracts\VisualRx.Contracts.csproj", "{BA07D849-D696-4843-93FE-DB64CD831A5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.UnitTests", "Tests\VisualRx.UnitTests\VisualRx.UnitTests.csproj", "{733A6050-CD09-46EB-A8D7-835F43F51C52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,11 +36,16 @@ Global
 		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BA07D849-D696-4843-93FE-DB64CD831A5F} = {570F9D34-F748-46C2-B067-017F2B950C49}
+		{733A6050-CD09-46EB-A8D7-835F43F51C52} = {78AA7CBB-023F-41E0-A9F7-E0F6AA3EA90E}
 	EndGlobalSection
 EndGlobal
