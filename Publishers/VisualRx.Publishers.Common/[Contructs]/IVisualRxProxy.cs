@@ -2,31 +2,26 @@
 using System.Collections.Generic;
 using System.Reactive;
 using System.Threading.Tasks;
+using VisualRx.Contracts;
 
-namespace VisualRx.Contracts
+namespace VisualRx.Publishers.Common
 {
     /// <summary>
     /// the contract of Visual Rx proxy
     /// (proxy is responsible to send the monitored datum through a channel)
     /// </summary>
-    public interface IVisualRxProxy: IDisposable
+    public interface IVisualRxProxy : IDisposable
     {
         /// <summary>
-        /// Initializes this instance.
+        /// Gets the monitor provider Name (unique like WebApi, WCF, ETW, File, etc.).
+        /// </summary>
+        string ProviderName { get; }
+
+        /// <summary>
+        /// Initialized indication.
         /// </summary>
         /// <returns>initialize information</returns>
-        Task<string> OnInitialize();
-
-        /// <summary>
-        /// Send a balk.
-        /// </summary>
-        /// <param name="items">The items.</param>
-        Task OnBulkSend(IEnumerable<Marble> items);
-
-        /// <summary>
-        /// Gets the monitor provider kind (unique like WebApi, WCF, ETW, File, etc.).
-        /// </summary>
-        string Kind { get; }
+        Task<ProxyInfo> InitializeAsync();
 
         /// <summary>
         /// Gets the bulk trigger
@@ -40,6 +35,12 @@ namespace VisualRx.Contracts
         /// <value>
         /// The bulk trigger.
         /// </value>
-        IObservable<Unit> BulkTrigger(IObserver<Unit> streamRate);
+        IObservable<Unit> BulkTrigger(IObservable<Unit> streamRate);
+
+        /// <summary>
+        /// Send a balk.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        Task BulkSend(IEnumerable<Marble> items);
     }
 }

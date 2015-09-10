@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace VisualRx.Contracts
 {
     /// <summary>
@@ -10,6 +12,13 @@ namespace VisualRx.Contracts
         /// Writes the specified text.
         /// </summary>
         /// <param name="text">The text.</param>
-        void Write(string text);
+        void Warn(string text, Exception ex = null);
+
+        /// <summary>
+        /// Errors the specified text.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="ex">The ex.</param>
+        void Error(string text, Exception ex = null);
     }
 }
