@@ -19,6 +19,8 @@ namespace System.Reactive.Linq
     /// </summary>
     public static class VisualRxExtensions
     {
+        private static int _order = 0;
+        
         #region Monitor Many
 
         #region Overloads
@@ -29,16 +31,36 @@ namespace System.Reactive.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        public static IObservable<IObservable<T>> MonitorMany<T>(
+            this IObservable<IObservable<T>> instance,
+            string name,
+            VisualRxSettings setting = null)
+        {
+            var result = MonitorMany(instance, name, null, 
+                (Func<T, object>)null, setting);
+            return result;
+        }
+
+        /// <summary>
+        /// Monitors many streams (like window).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
         /// <param name="orderingBaseIndex">Index of the ordering base.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<IObservable<T>> MonitorMany<T>(
             this IObservable<IObservable<T>> instance,
             string name,
             double orderingBaseIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            return MonitorMany(instance, name, orderingBaseIndex, (Func<T, object>)null, keywords);
+            var result = MonitorMany(instance, name, orderingBaseIndex, 
+                (Func<T, object>)null, setting);
+            return result;
         }
 
         #endregion // Overloads
@@ -51,19 +73,21 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingBaseIndex">Index of the ordering base.</param>
         /// <param name="surrogate">The surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<IObservable<T>> MonitorMany<T>(
             this IObservable<IObservable<T>> instance,
             string name,
-            double orderingBaseIndex,
+            double? orderingBaseIndex,
             Func<T, object> surrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
+            setting = setting ?? VisualRxSettings.Default;
+            double order = orderingBaseIndex ?? Interlocked.Increment(ref _order);
             int index = 0;
             var xs = from obs in instance
                      let idx = Interlocked.Increment(ref index)
-                     select obs.Monitor(name + " " + idx, orderingBaseIndex + (idx / 100000.0), surrogate, keywords);
+                     select obs.Monitor(name + " " + idx, order + (idx / 100000.0), surrogate, setting);
             return xs;
         }
 
@@ -80,16 +104,37 @@ namespace System.Reactive.Linq
         /// <typeparam name="TElement">The type of the element.</typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        public static IObservable<IGroupedObservable<TKey, TElement>> MonitorGroup<TKey, TElement>(
+            this IObservable<IGroupedObservable<TKey, TElement>> instance,
+            string name,
+            VisualRxSettings setting = null)
+        {
+            return MonitorGroup(instance, name, null,
+                (Func<TElement, object>)null, setting);
+        }
+
+        /// <summary>
+        /// Monitor Group by stream
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TElement">The type of the element.</typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
         /// <param name="orderingBaseIndex">Index of the ordering base.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<IGroupedObservable<TKey, TElement>> MonitorGroup<TKey, TElement>(
             this IObservable<IGroupedObservable<TKey, TElement>> instance,
             string name,
             double orderingBaseIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            return MonitorGroup(instance, name, orderingBaseIndex, (Func<TElement, object>)null, keywords);
+            return MonitorGroup(instance, 
+                name, orderingBaseIndex,
+                (Func<TElement, object>)null,
+                setting);
         }
 
         #endregion // Overloads
@@ -103,27 +148,29 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingBaseIndex">Index of the ordering base.</param>
         /// <param name="elementSurrogate">The element surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<IGroupedObservable<TKey, TElement>> MonitorGroup<TKey, TElement>(
             this IObservable<IGroupedObservable<TKey, TElement>> instance,
             string name,
-            double orderingBaseIndex,
+            double? orderingBaseIndex,
             Func<TElement, object> elementSurrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
+            setting = setting ?? VisualRxSettings.Default;
             Func<IGroupedObservable<TKey, TElement>, object> keySurrogate =
                 g => $"Key = {g.Key}";
 
-            instance = instance.Monitor(name + " (keys)", orderingBaseIndex,
-                keySurrogate, keywords);
+            double order = orderingBaseIndex ?? Interlocked.Increment(ref _order);
+            instance = instance.Monitor(name + " (keys)", order,
+                keySurrogate, setting);
 
             int index = 0;
             var xs = from g in instance
                      let idx = Interlocked.Increment(ref index)
-                     let ord = orderingBaseIndex + (idx / 100000.0)
+                     let ord = order + (idx / 100000.0)
                      select new GroupedMonitored<TKey, TElement>(
-                                        g, $"{name}:{g.Key} ({idx})", ord, elementSurrogate, keywords);
+                                        g, $"{name}:{g.Key} ({idx})", ord, elementSurrogate);
 
             return xs;
         }
@@ -141,16 +188,36 @@ namespace System.Reactive.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        public static IConnectableObservable<T> Monitor<T>(
+            this IConnectableObservable<T> instance,
+            string name,
+            VisualRxSettings setting = null)
+        {
+            var result = Monitor(instance, name, null,
+                (Func<T, object>)null, setting);
+            return result;
+        }
+
+        /// <summary>
+        /// Monitor IConnectableObservable stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IConnectableObservable<T> Monitor<T>(
             this IConnectableObservable<T> instance,
             string name,
             double orderingIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            return Monitor<T>(instance, name, orderingIndex, (Func<T, object>)null, keywords);
+            var result = Monitor<T>(instance, name, orderingIndex, 
+                (Func<T, object>)null, setting);
+            return result;
         }
 
         #endregion Overloads
@@ -163,17 +230,19 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
         /// <param name="surrogate">The surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IConnectableObservable<T> Monitor<T>(
             this IConnectableObservable<T> instance,
             string name,
-            double orderingIndex,
+            double? orderingIndex,
             Func<T, object> surrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            var monitor = new MonitorOperator<T>(
-                name, orderingIndex, surrogate, keywords);
+            setting = setting ?? VisualRxSettings.Default;
+            double order = orderingIndex ?? Interlocked.Increment(ref _order);
+            var monitor = new StreamChannel<T>(
+                setting, name, order, surrogate);
 
             var watcher = monitor.AttachTo(instance);
             return watcher;
@@ -191,21 +260,43 @@ namespace System.Reactive.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        public static ISubject<T> Monitor<T>(
+            this ISubject<T> instance,
+            string name,
+            VisualRxSettings setting = null)
+        {
+            return Monitor(
+                instance,
+                name,
+                null,
+                (Func<T, object>)null,
+                setting);
+        }
+
+
+        /// <summary>
+        /// Monitor ISubject stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static ISubject<T> Monitor<T>(
             this ISubject<T> instance,
             string name,
             double orderingIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
             return Monitor<T>(
                 instance,
                 name,
                 orderingIndex,
                 (Func<T, object>)null,
-                keywords);
+                setting);
         }
 
         #endregion Overloads
@@ -218,17 +309,19 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
         /// <param name="surrogate">The surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static ISubject<T> Monitor<T>(
             this ISubject<T> instance,
             string name,
-            double orderingIndex,
+            double? orderingIndex,
             Func<T, object> surrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            var monitor = new MonitorOperator<T>(
-                name, orderingIndex, surrogate, keywords);
+            setting = setting ?? VisualRxSettings.Default;
+            double order = orderingIndex ?? Interlocked.Increment(ref _order);
+            var monitor = new StreamChannel<T>(
+                setting, name, order, surrogate);
 
             var watcher = monitor.AttachTo(instance);
             return watcher;
@@ -244,16 +337,37 @@ namespace System.Reactive.Linq
         /// <typeparam name="TOut">The type of the out.</typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
+        /// <param name="setting"></param>
+        /// <returns></returns>
+        public static ISubject<TIn, TOut> Monitor<TIn, TOut>(
+            this ISubject<TIn, TOut> instance,
+            string name,
+            VisualRxSettings setting = null)
+        {
+            var result = Monitor(instance, name, null, 
+                (Func<TOut, object>)null, setting);
+            return result;
+        }
+
+        /// <summary>
+        /// Monitor ISubject stream
+        /// </summary>
+        /// <typeparam name="TIn">The type of the in.</typeparam>
+        /// <typeparam name="TOut">The type of the out.</typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static ISubject<TIn, TOut> Monitor<TIn, TOut>(
             this ISubject<TIn, TOut> instance,
             string name,
             double orderingIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            return Monitor<TIn, TOut>(instance, name, orderingIndex, (Func<TOut, object>)null, keywords);
+            var result = Monitor<TIn, TOut>(instance, name, orderingIndex,
+                (Func<TOut, object>)null, setting);
+            return result;
         }
 
         #endregion Overloads
@@ -267,17 +381,18 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
         /// <param name="surrogate">The surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static ISubject<TIn, TOut> Monitor<TIn, TOut>(
             this ISubject<TIn, TOut> instance,
             string name,
-            double orderingIndex,
+            double? orderingIndex,
             Func<TOut, object> surrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            var monitor = new MonitorOperator<TOut>(
-                name, orderingIndex, surrogate, keywords);
+            double order = orderingIndex ?? Interlocked.Increment(ref _order);
+            var monitor = new StreamChannel<TOut>(
+                setting, name, order, surrogate);
 
             var watcher = monitor.AttachTo(instance);
             return watcher;
@@ -295,19 +410,36 @@ namespace System.Reactive.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="name">The name.</param>
-        /// <param name="orderingIndex">the ordering of the marble diagram</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<T> Monitor<T>(
             this IObservable<T> instance,
             string name,
-            double orderingIndex,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            return Monitor<T>(
+            var result = Monitor<T>(
+                instance, name, null,
+                (Func<T, object>)null, setting);
+            return result;
+        }
+
+        /// <summary>
+        /// Monitor IObservable stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="orderingIndex">the ordering of the marble diagram</param>
+        /// <returns></returns>
+        public static IObservable<T> Monitor<T>(
+            this IObservable<T> instance,
+            string name,
+            double orderingIndex)
+        {
+            var result = Monitor<T>(
                 instance, name, orderingIndex,
-                (Func<T, object>)null,
-                keywords);
+                (Func<T, object>)null);
+            return result;
         }
 
         #endregion Overloads
@@ -320,17 +452,19 @@ namespace System.Reactive.Linq
         /// <param name="name">The name.</param>
         /// <param name="orderingIndex">Index of the ordering.</param>
         /// <param name="surrogate">a surrogate.</param>
-        /// <param name="keywords">The keywords.</param>
+        /// <param name="setting"></param>
         /// <returns></returns>
         public static IObservable<T> Monitor<T>(
             this IObservable<T> instance,
             string name,
-            double orderingIndex,
+            double? orderingIndex,
             Func<T, object> surrogate,
-            params string[] keywords)
+            VisualRxSettings setting = null)
         {
-            var monitor = new MonitorOperator<T>(
-                name, orderingIndex, surrogate, keywords);
+            setting = setting ?? VisualRxSettings.Default;
+            double order = orderingIndex ?? Interlocked.Increment(ref _order);
+            var monitor = new StreamChannel<T>(
+                 setting, name, order, surrogate);
 
             var watcher = monitor.AttachTo(instance);
             return watcher;
@@ -359,16 +493,14 @@ namespace System.Reactive.Linq
             /// <param name="name">The name.</param>
             /// <param name="order">The order.</param>
             /// <param name="surrogate">The surrogate.</param>
-            /// <param name="keywords">The keywords.</param>
             public GroupedMonitored(
                 IGroupedObservable<TKey, TElement> group,
                 string name,
                 double order,
-                Func<TElement, object> surrogate,
-                params string[] keywords)
+                Func<TElement, object> surrogate)
             {
                 _key = group.Key;
-                _groupStream = group.Monitor(name, order, surrogate, keywords);
+                _groupStream = group.Monitor(name, order, surrogate);
             }
 
             #endregion // Ctor

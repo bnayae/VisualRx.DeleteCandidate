@@ -7,30 +7,32 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using VisualRx.Contracts;
+using VisualRx.Contracts.Internals;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 #endregion Using
 
-namespace VisualRx.Contracts
+namespace System.Reactive.Contrib.Monitoring
 {
     /// <summary>
     /// Candidate data before it is constructed into a marble
-    /// Used by Enable / Disable Filters
     /// </summary>
     public struct MarbleCandidate
     {
         public MarbleCandidate(string name, MarbleKind kind, string[] keywords)
         {
-            Name = name;
-            Kind = kind;
-            Keywords = keywords;
+            _name = name;
+            _kind = kind;
+            _keywords = keywords;
         }
 
-        public string Name { get; }
-        public MarbleKind Kind { get; }
-        public string[] Keywords { get; }
+        private string _name;
+        public string Name { get { return _name; } }
+        private MarbleKind _kind;
+        public MarbleKind Kind { get { return _kind; } }
+        private string[] _keywords;
+        public string[] Keywords { get { return _keywords; } }
     }
-
 }

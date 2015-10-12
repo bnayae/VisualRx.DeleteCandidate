@@ -1,0 +1,3 @@
+Monitor(setting) -> setting GetOrAddMonitorOperation
+
+setting -> AddKeywords to stream

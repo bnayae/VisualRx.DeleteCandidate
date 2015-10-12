@@ -20,11 +20,12 @@ namespace VisualRx.Publishers.Common
     {
         #region Private / Protected Fields
 
-        private readonly IVisualRxProxy _actualProxy;
+        private readonly IVisualRxChannel _actualProxy;
         private ISubject<Marble> _subject;
         private IDisposable _unsubSubject;
 
         private IScheduler _scheduler;
+        private readonly ILogAdapter _logger;
 
         #endregion Private / Protected Fields
 
@@ -33,12 +34,17 @@ namespace VisualRx.Publishers.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="VisualRxProxyWrapper" /> class.
         /// </summary>
-        public VisualRxProxyWrapper(IVisualRxProxy actualProxy)
+        public VisualRxProxyWrapper(
+            IVisualRxChannel actualProxy, 
+            ILogAdapter logger)
         {
             if (actualProxy == null)
                 throw new ArgumentNullException(nameof(actualProxy));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _actualProxy = actualProxy;
+            _logger = logger;
         }
 
         #endregion // Ctor
@@ -51,18 +57,18 @@ namespace VisualRx.Publishers.Common
         /// <value>
         /// The actual proxy.
         /// </value>
-        internal IVisualRxProxy ActualProxy { get { return _actualProxy; } }
+        internal IVisualRxChannel ActualProxy { get { return _actualProxy; } }
 
         #endregion // ActualProxy
 
-        #region Kind
+        #region ProviderName
 
         /// <summary>
-        /// Gets the proxy kind.
+        /// Gets the proxy Name.
         /// </summary>
-        public string Kind { get { return _actualProxy.ProviderName; } }
+        public string ProviderName { get { return _actualProxy.ProviderName; } }
 
-        #endregion Kind
+        #endregion ProviderName
 
         #region Methods
 
@@ -80,7 +86,7 @@ namespace VisualRx.Publishers.Common
 
             _scheduler.Catch<Exception>(e =>
             {
-                VisualRxSettings.Log.Error("Scheduling (OnBulkSend): {0}", e);
+                _logger.Error("Scheduling (OnBulkSend): {0}", e);
                 return true;
             });
 
@@ -147,7 +153,7 @@ namespace VisualRx.Publishers.Common
             }
             catch (Exception ex)
             {
-                VisualRxSettings.Log.Error($"{this.GetType().Name}.{nameof(Dispose)}", ex);
+                _logger.Error($"{this.GetType().Name}.{nameof(Dispose)}", ex);
             }
         }
 

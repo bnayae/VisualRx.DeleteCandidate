@@ -22,7 +22,7 @@ namespace VisualRx.UnitTests
             Marble result = JsonConvert.DeserializeObject<Marble>(json);
 
             // verify
-            Assert.AreEqual(msg.Name, result.Name);
+            Assert.AreEqual(msg.StreamKey, result.StreamKey);
             Assert.AreEqual(msg.Kind, result.Kind);
             Assert.AreEqual(msg.IndexOrder, result.IndexOrder);
             Assert.AreEqual(msg.DateCreatedUtc, result.DateCreatedUtc);
@@ -47,7 +47,7 @@ namespace VisualRx.UnitTests
             Marble result = JsonConvert.DeserializeObject<Marble>(json);
 
             // verify
-            Assert.AreEqual(msg.Name, result.Name);
+            Assert.AreEqual(msg.StreamKey, result.StreamKey);
             Assert.AreEqual(msg.Kind, result.Kind);
             Assert.AreEqual(msg.IndexOrder, result.IndexOrder);
             Assert.AreEqual(msg.DateCreatedUtc, result.DateCreatedUtc);
@@ -70,7 +70,7 @@ namespace VisualRx.UnitTests
             Marble result = JsonConvert.DeserializeObject<Marble>(json);
 
             // verify
-            Assert.AreEqual(msg.Name, result.Name);
+            Assert.AreEqual(msg.StreamKey, result.StreamKey);
             Assert.AreEqual(msg.Kind, result.Kind);
             Assert.AreEqual(msg.IndexOrder, result.IndexOrder);
             Assert.AreEqual(msg.DateCreatedUtc, result.DateCreatedUtc);

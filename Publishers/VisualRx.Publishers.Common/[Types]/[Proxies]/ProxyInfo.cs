@@ -7,6 +7,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using VisualRx.Contracts;
 
@@ -15,8 +16,11 @@ namespace VisualRx.Publishers.Common
     /// <summary>
     /// Load information on the monitor proxy plug-ins
     /// </summary>
-    public class ProxyInfo
+    public class ProxyInfo : IDisposable
     {
+        private readonly TaskCompletionSource<object> _completion =
+            new TaskCompletionSource<object>();
+
         #region Ctor
 
         /// <summary>
@@ -24,10 +28,12 @@ namespace VisualRx.Publishers.Common
         /// </summary>
         /// <param name="providerName">Name of the provider.</param>
         /// <param name="metadata">initialization information</param>
+        /// <param name="disposeAction"></param>
         /// <param name="error">The error.</param>
         public ProxyInfo(
-            string providerName, 
+            string providerName,
             string metadata,
+            Action disposeAction,
             string error = null)
         {
             ProviderName = providerName;
@@ -63,7 +69,35 @@ namespace VisualRx.Publishers.Common
         /// <value>
         /// The error.
         /// </value>
-        public string Error { get; } 
+        public string Error { get; }
+
         #endregion // Error
+
+        #region Completion
+
+        /// <summary>
+        /// Completion indication
+        /// </summary>
+        public Task Completion => _completion.Task;
+
+        #endregion // Completion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose (remove the proxy)
+        /// </summary>
+        public void Dispose()
+        {
+            if (string.IsNullOrEmpty(Error))
+                _completion.TrySetResult(null);
+            else
+            {
+                var ex = new Exception(Error);
+                _completion.TrySetException(ex);
+            }
+        }
+
+        #endregion // Dispose
     }
 }

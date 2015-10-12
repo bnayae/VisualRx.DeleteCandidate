@@ -39,23 +39,22 @@ namespace VisualRx.Contracts
         /// <summary>
         /// Initializes a new instance of the <see cref="Marble" /> class.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="streamKey"></param>
         /// <param name="kind">The kind.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
         internal Marble(
-            string name,
+            string streamKey,
             MarbleKind kind,
             TimeSpan elapsed,
             string machineName)
         {
-            Name = name;
+            StreamKey = streamKey;
             Kind = kind;
 
             Offset = elapsed;
 
             DateCreatedUtc = DateTime.UtcNow;
-            Keywords = new string[0];
 
             MachineName = machineName;
         }
@@ -87,15 +86,15 @@ namespace VisualRx.Contracts
 
         #endregion DateCreatedUtc
 
-        #region Name
+        #region StreamKey
 
         /// <summary>
-        /// diagram name (sue as a key)
+        /// stream friendly key 
         /// </summary>
         [JsonProperty]
-        public string Name { get; private set; }
+        public string StreamKey { get; private set; }
 
-        #endregion Name
+        #endregion StreamKey
 
         #region Kind
 
@@ -117,19 +116,6 @@ namespace VisualRx.Contracts
         public TimeSpan Offset { get; private set; }
 
         #endregion Offset
-
-        #region Keywords
-
-        /// <summary>
-        /// Gets or sets the keywords.
-        /// </summary>
-        /// <value>
-        /// The keywords.
-        /// </value>
-        [JsonProperty]
-        public string[] Keywords { get; set; }
-
-        #endregion Keywords
 
         #region IndexOrder
 
@@ -172,19 +158,19 @@ namespace VisualRx.Contracts
         /// Creates the specified name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="name">The name.</param>
+        /// <param name="streamKey"></param>
         /// <param name="item">The item.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static Marble CreateNext<T>(
-                        string name,
+                        string streamKey,
                         T item,
                         TimeSpan elapsed,
                         string machineName)
         {
-            var msg = new Marble(name, MarbleKind.OnNext, elapsed, machineName);
+            var msg = new Marble(streamKey, MarbleKind.OnNext, elapsed, machineName);
             msg.Value = JToken.FromObject(item);
             return msg;
         }
@@ -196,18 +182,19 @@ namespace VisualRx.Contracts
         /// <summary>
         /// Creates the error.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="streamKey"></param>
         /// <param name="ex">The ex.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static Marble CreateError(string name,
+        public static Marble CreateError(
+                        string streamKey,
                         Exception ex,
                         TimeSpan elapsed,
                         string machineName)
         {
-            var msg = new Marble(name, MarbleKind.OnError, elapsed, machineName);
+            var msg = new Marble(streamKey, MarbleKind.OnError, elapsed, machineName);
             msg.Value = JToken.FromObject(ex);
             return msg;
         }
@@ -218,15 +205,16 @@ namespace VisualRx.Contracts
         /// <summary>
         /// Creates the completed.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="streamKey"></param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static Marble CreateCompleted(string name,
+        public static Marble CreateCompleted(
+            string streamKey,
             TimeSpan elapsed, string machineName)
         {
-            var msg = new Marble(name, MarbleKind.OnCompleted, elapsed, machineName);
+            var msg = new Marble(streamKey, MarbleKind.OnCompleted, elapsed, machineName);
             return msg;
         } 
 

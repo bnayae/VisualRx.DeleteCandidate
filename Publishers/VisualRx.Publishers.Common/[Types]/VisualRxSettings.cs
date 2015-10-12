@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,11 +15,18 @@ namespace VisualRx.Publishers.Common
     /// <summary>
     /// Visual Rx publish side settings
     /// </summary>
-    public static class VisualRxSettings
+    public class VisualRxSettings
     {
-        private static volatile bool _enable = true;
+        public static VisualRxSettings Default { get; } = new VisualRxSettings();
 
-        #region AddProxies
+        private volatile bool _enable = true;
+        private readonly ConcurrentDictionary<Guid, VisualRxProxyWrapper> _proxies =
+            new ConcurrentDictionary<Guid, VisualRxProxyWrapper>();
+        //                                     id, Func<streamKey, proxy provider name, bool>
+        private readonly ConcurrentDictionary<Guid, Func<string, string, bool>> _filters =
+            new ConcurrentDictionary<Guid, Func<string, string, bool>>();
+
+        #region TryAddProxies
 
         /// <summary>
         /// Adds the proxies.
@@ -30,110 +38,94 @@ namespace VisualRx.Publishers.Common
         /// each initialized proxy send the proxy initialization
         /// information via the Observable
         /// </returns>
-        public static IObservable<ProxyInfo> AddProxies(
-            params IVisualRxProxy[] proxies)
+        public IObservable<ProxyInfo> TryAddProxies(
+            params IVisualRxChannel[] proxies)
         {
             if (proxies == null || !proxies.Any())
                 throw new ArgumentException("missing proxies");
 
-            IObservable<ProxyInfo> infos =
+            var results =
                 from p in proxies.ToObservable()
                 from info in Observable.StartAsync(() => p.InitializeAsync())
-                select info;
+                select new { Info = info, Proxy = p };
 
-            infos = infos.Do(v =>
+            results = results.Do(item =>
             {
-                // TODO: Add proxy to collections
+                if (string.IsNullOrEmpty(item.Info.Error))
+                {
+                    var w = new VisualRxProxyWrapper(item.Proxy, Log);
+                    _proxies.TryAdd(item.Proxy.InstanceId, w);
+                    item.Info.Completion.ContinueWith(t =>
+                    {
+                        VisualRxProxyWrapper proxy;
+                        _proxies.TryRemove(item.Proxy.InstanceId, out proxy);
+                    });
+                }
             });
 
-            return infos;
+            var hot = results.Select(m => m.Info)
+                             .Publish();
+            hot.Connect();
+            return hot;
         }
 
-        #endregion // AddProxies
+        #endregion // TryAddProxies
 
-        #region RemoveProxies
+        #region ClearProxies
 
         /// <summary>
-        /// Removes the proxies.
+        /// Removes all proxies.
         /// </summary>
-        /// <param name="proxies">The proxies.</param>
-        /// <exception cref="System.ArgumentException">missing proxies</exception>
-        public static void RemoveProxies(params IVisualRxProxy[] proxies)
+        public void ClearProxies()
         {
-            if (proxies == null || !proxies.Any())
-                throw new ArgumentException("missing proxies");
-
-            //lock (_syncProxies)
+            foreach (var p in _proxies.Values)
             {
-                IEnumerable<VisualRxProxyWrapper> left =
-                    from w in Proxies
-                    where !proxies.Any(p => p == w.ActualProxy)
-                    select w;
-
-                Proxies = left.ToArray();
+                p.Dispose();
             }
-            Task.Factory.StartNew(state =>
-            {
-                #region Dispose
-
-                var removed = state as IVisualRxProxy[];
-                foreach (var p in removed)
-                {
-                    try
-                    {
-                        p.Dispose();
-                    }
-                    #region Exception Handling
-
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Dispose proxy: [{p.ProviderName}]", ex);
-                    }
-
-                    #endregion // Exception Handling
-                }
-
-                #endregion // Dispose
-            }, proxies);
         }
 
-        #endregion // RemoveProxies
+        #endregion // ClearProxies
 
-        #region Elapsed
+        #region AddFilter
 
         /// <summary>
-        /// Elapsed the specified candidate.
+        /// Add Filter
         /// </summary>
-        /// <param name="candidate">The candidate.</param>
+        /// <param name="filter">
+        /// get marble stream key and proxy provider name
+        /// return true for using the proxy
+        /// </param>
         /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public static TimeSpan Elapsed(MarbleCandidate candidate)
+        public IDisposable AddFilter(
+            Func<string, string, bool> filter)
         {
-            throw new NotImplementedException();
+            Guid key = Guid.NewGuid();
+            var d = Disposable.Create(() =>
+                {
+                    _filters.TryRemove(key, out filter);
+                });
+            if (_filters.TryAdd(key, filter))
+                return d;
+            else
+                return Disposable.Empty;
         }
-        #endregion // Elapsed
+
+        #endregion // AddFilter
 
         #region GetProxies
 
         /// <summary>
         /// Gets the proxies.
         /// </summary>
-        /// <param name="candidate">The candidate.</param>
+        /// <param name="streamKey">The candidate.</param>
         /// <returns></returns>
-        internal static VisualRxProxyWrapper[] GetProxies(MarbleCandidate candidate)
+        internal VisualRxProxyWrapper[] GetProxies(
+            string streamKey)
         {
-            if (Proxies == null || !Proxies.Any())
-            {
-                Log.Warn("MonitorOperator: No proxy found");
-                return new VisualRxProxyWrapper[0];
-            }
-
-            //var proxies = (from p in Proxies
-            //               where VisualRxSettings.Filter(candidate, p.Kind) &&
-            //                    p.Filter(candidate)
-            //               select p).ToArray();
-            //return proxies;
-            return null;
+            var proxies = from p in _proxies.Values
+                          where _filters.Values.All(f => f(streamKey, p.ProviderName))
+                          select p;
+            return proxies.ToArray();
         }
 
         #endregion // GetProxies
@@ -144,13 +136,13 @@ namespace VisualRx.Publishers.Common
         /// Sends the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
-        internal static void Send(Marble item, IEnumerable<VisualRxProxyWrapper> proxies)
+        internal void Send(Marble item, IEnumerable<VisualRxProxyWrapper> proxies)
         {
             #region Validation
 
-            if (Proxies == null || !Proxies.Any())
+            if (proxies == null || !proxies.Any())
             {
-                Log.Warn("MonitorOperator: No proxy found");
+                Log.Warn($"{nameof(VisualRxSettings)}: No proxy found");
                 return;
             }
 
@@ -174,7 +166,7 @@ namespace VisualRx.Publishers.Common
 
                 catch (Exception ex)
                 {
-                    Log.Error("MonitorOperator", ex);
+                    Log.Error(nameof(VisualRxSettings), ex);
                 }
 
                 #endregion Exception Handling
@@ -191,7 +183,7 @@ namespace VisualRx.Publishers.Common
         /// <value>
         ///   <c>true</c> if enable; otherwise, <c>false</c>.
         /// </value>
-        public static bool Enable
+        public bool Enable
         {
             get { return _enable; }
             set
@@ -202,18 +194,6 @@ namespace VisualRx.Publishers.Common
 
         #endregion Enable
 
-        #region Proxies
-
-        /// <summary>
-        /// Gets the proxies.
-        /// </summary>
-        /// <value>
-        /// The proxies.
-        /// </value>
-        private static VisualRxProxyWrapper[] Proxies { get; set; }
-
-        #endregion Proxies
-
         #region Log
 
         /// <summary>
@@ -222,7 +202,8 @@ namespace VisualRx.Publishers.Common
         /// <value>
         /// The log.
         /// </value>
-        public static ILogAdapter Log { get; internal set; }
+        public ILogAdapter Log { get; internal set; } = new DefaultLogger();
+
         #endregion // Log
 
         #region MachineInfo
@@ -233,7 +214,28 @@ namespace VisualRx.Publishers.Common
         /// <value>
         /// The machine information.
         /// </value>
-        public static string MachineInfo { get; internal set; }
+        public string MachineInfo { get; internal set; }
+
         #endregion // MachineInfo
+
+        #region DefaultLogger
+
+        /// <summary>
+        /// Default log implementation
+        /// </summary>
+        private class DefaultLogger : ILogAdapter
+        {
+            public void Error(string text, Exception ex = null)
+            {
+                Debug.WriteLine($"{text}: {ex}");
+            }
+
+            public void Warn(string text, Exception ex = null)
+            {
+                Debug.WriteLine($"{text}: {ex}");
+            }
+        }
+
+        #endregion // DefaultLogger
     }
 }

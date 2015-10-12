@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive;
@@ -13,47 +14,51 @@ namespace VisualRx.Publishers.Common
 {
     /// <summary>
     /// Main class for the monitor logic and coordination
+    /// single instance per stream
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class MonitorOperator<T>
+    internal class StreamChannel<T>
     {
         #region Private / Protected Fields
 
-        private readonly string _name;
-        private readonly string[] _keyworkds;
+        private readonly VisualRxSettings _setting;
         private readonly double _indexOrder;
         private readonly Func<T, object> _surrogate;
+        private static readonly Stopwatch _time = Stopwatch.StartNew();
+        private readonly TimeSpan _offset; //offset duration
 
         #endregion Private / Protected Fields
 
         #region Constructors
 
-        public MonitorOperator(
-            string name,
+        public StreamChannel(
+            VisualRxSettings setting,
+            string streamKey,
             double indexOrder,
-            Func<T, object> surrogate,
-            string[] keywords)
+            Func<T, object> surrogate)
         {
             #region Validation
-
-            if (keywords == null)
-                keywords = new string[0];
-
-            if (keywords == null)
-                keywords = new string[0];
 
             if (surrogate == null)
                 surrogate = m => JsonConvert.SerializeObject(m);
 
             #endregion Validation
 
-            _name = name;
+            _setting = setting;
+
+            StreamKey = streamKey;
             _surrogate = surrogate;
-            _keyworkds = keywords;
             _indexOrder = indexOrder;
+            _offset = _time.Elapsed;
         }
 
         #endregion Constructors
+
+        #region StreamKey
+
+        public string StreamKey { get; }
+
+        #endregion // StreamKey
 
         #region Methods
 
@@ -64,10 +69,9 @@ namespace VisualRx.Publishers.Common
         /// </summary>
         /// <param name="instance">The instance.</param>
         /// <returns></returns>
-        public IObservable<T> AttachTo(IObservable<T> instance)
-        {
-            return instance.Do(PublishOnNext, PublishError, PublishComplete);
-        }
+        public IObservable<T> AttachTo(IObservable<T> instance) =>
+            instance.Do(PublishOnNext, PublishError, PublishComplete);
+        
 
         /// <summary>
         /// Attaches to.
@@ -104,6 +108,21 @@ namespace VisualRx.Publishers.Common
 
         #endregion AttachTo
 
+        #region Elapsed
+
+        /// <summary>
+        /// Elapsed the specified candidate.
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan Elapsed()
+        {
+            TimeSpan elapsed = _time.Elapsed;
+            TimeSpan result = elapsed - _offset;
+            return result;
+        }
+
+        #endregion // Elapsed
+
         #region Publish
 
         #region PublishOnNext
@@ -114,12 +133,10 @@ namespace VisualRx.Publishers.Common
         /// <param name="value">The value.</param>
         public void PublishOnNext(T value)
         {
-            if (!VisualRxSettings.Enable)
+            if (!_setting.Enable)
                 return;
 
-            var candidate = new MarbleCandidate(_name, MarbleKind.OnNext, _keyworkds);
-
-            VisualRxProxyWrapper[] proxies = VisualRxSettings.GetProxies(candidate);
+            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
 
             #region Validation
 
@@ -129,7 +146,11 @@ namespace VisualRx.Publishers.Common
             #endregion // Validation
 
             object item = _surrogate(value);
-            var marbleItem = Marble.CreateNext(_name, item, VisualRxSettings.Elapsed(candidate), VisualRxSettings.MachineInfo);
+            TimeSpan elapsed = Elapsed(); 
+            var marbleItem = Marble.CreateNext(StreamKey,
+                                item, 
+                                elapsed,
+                                _setting.MachineInfo);
             Publish(marbleItem, proxies);
         }
 
@@ -142,11 +163,10 @@ namespace VisualRx.Publishers.Common
         /// </summary>
         public void PublishComplete()
         {
-            if (!VisualRxSettings.Enable)
+            if (!_setting.Enable)
                 return;
 
-            var candidate = new MarbleCandidate(_name, MarbleKind.OnCompleted, _keyworkds);
-            VisualRxProxyWrapper[] proxies = VisualRxSettings.GetProxies(candidate);
+            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
 
             #region Validation
 
@@ -155,7 +175,11 @@ namespace VisualRx.Publishers.Common
 
             #endregion // Validation
 
-            var marbleItem = Marble.CreateCompleted(_name, VisualRxSettings.Elapsed(candidate), VisualRxSettings.MachineInfo);
+            TimeSpan elapsed = Elapsed();
+            var marbleItem = Marble.CreateCompleted(
+                StreamKey,
+                elapsed, 
+                _setting.MachineInfo);
             Publish(marbleItem, proxies);
         }
 
@@ -169,11 +193,10 @@ namespace VisualRx.Publishers.Common
         /// <param name="ex">The ex.</param>
         public void PublishError(Exception ex)
         {
-            if (!VisualRxSettings.Enable)
+            if (!_setting.Enable)
                 return;
 
-            var candidate = new MarbleCandidate(_name, MarbleKind.OnError, _keyworkds);
-            VisualRxProxyWrapper[] proxies = VisualRxSettings.GetProxies(candidate);
+            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
 
             #region Validation
 
@@ -182,7 +205,12 @@ namespace VisualRx.Publishers.Common
 
             #endregion // Validation
 
-            var marbleItem = Marble.CreateError(_name, ex, VisualRxSettings.Elapsed(candidate), VisualRxSettings.MachineInfo);
+            TimeSpan elapsed = Elapsed();
+            var marbleItem = Marble.CreateError(
+                StreamKey, 
+                ex, 
+                elapsed, 
+                _setting.MachineInfo);
             Publish(marbleItem, proxies);
         }
 
@@ -192,12 +220,13 @@ namespace VisualRx.Publishers.Common
         /// Publishes the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
-        private void Publish(Marble item, VisualRxProxyWrapper[] proxies)
+        private void Publish(
+            Marble item, 
+            VisualRxProxyWrapper[] proxies)
         {
-            item.Keywords = _keyworkds;
             item.IndexOrder = _indexOrder;
 
-            VisualRxSettings.Send(item, proxies);
+            _setting.Send(item, proxies);
         }
 
         #endregion Publish

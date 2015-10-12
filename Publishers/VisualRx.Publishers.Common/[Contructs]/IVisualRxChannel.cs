@@ -7,11 +7,16 @@ using VisualRx.Contracts;
 namespace VisualRx.Publishers.Common
 {
     /// <summary>
-    /// the contract of Visual Rx proxy
+    /// the contract of Visual Rx channel (proxy)
     /// (proxy is responsible to send the monitored datum through a channel)
     /// </summary>
-    public interface IVisualRxProxy : IDisposable
+    public interface IVisualRxChannel : IDisposable
     {
+        /// <summary>
+        /// Get the proxy's instance id
+        /// </summary>
+        Guid InstanceId { get; }
+
         /// <summary>
         /// Gets the monitor provider Name (unique like WebApi, WCF, ETW, File, etc.).
         /// </summary>
