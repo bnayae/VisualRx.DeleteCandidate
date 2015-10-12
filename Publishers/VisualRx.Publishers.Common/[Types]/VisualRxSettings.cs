@@ -15,6 +15,8 @@ namespace VisualRx.Publishers.Common
 {
     /// <summary>
     /// Visual Rx publish side settings
+    /// IMPORTANT: nothing will be published until setting
+    ///            both filters and channels
     /// </summary>
     public class VisualRxSettings
     {
@@ -22,9 +24,9 @@ namespace VisualRx.Publishers.Common
 
         private readonly ConcurrentDictionary<Guid, VisualRxChannelWrapper> _channels =
             new ConcurrentDictionary<Guid, VisualRxChannelWrapper>();
-        //                                     id, Func<streamKey, proxy provider name, bool>
-        private readonly ConcurrentDictionary<Guid, Func<string, string, bool>> _filters =
-            new ConcurrentDictionary<Guid, Func<string, string, bool>>();
+        //                                     id, Func<streamKey, channel, bool>
+        private readonly ConcurrentDictionary<Guid, Func<string, IVisualRxChannel, bool>> _filters =
+            new ConcurrentDictionary<Guid, Func<string, IVisualRxChannel, bool>>();
 
         #region Ctor
 
@@ -112,7 +114,7 @@ namespace VisualRx.Publishers.Common
         {
             var channels = from channel in _channels.Values
                           where _filters.Values.Any(
-                              f => f(streamKey, channel.ProviderName))
+                              f => f(streamKey, channel.ActualChannel))
                           select channel;
             return channels.ToArray();
         }
@@ -126,12 +128,12 @@ namespace VisualRx.Publishers.Common
         /// Add Filter
         /// </summary>
         /// <param name="filter">
-        /// get marble stream key and proxy provider name
-        /// return true for using the proxy
+        /// get marble stream key and channel
+        /// return the registration key
         /// </param>
         /// <returns></returns>
         public Guid AddFilter(
-            Func<string, string, bool> filter)
+            Func<string, IVisualRxChannel, bool> filter)
         {
             Guid key = Guid.NewGuid();
             if (!_filters.TryAdd(key, filter))
@@ -151,7 +153,7 @@ namespace VisualRx.Publishers.Common
         /// <returns></returns>
         public bool RemoveFilter(Guid key)
         {
-            Func<string, string, bool> filter;
+            Func<string, IVisualRxChannel, bool> filter;
             bool result = _filters.TryRemove(key, out filter);
             return result;
         }
@@ -183,8 +185,16 @@ namespace VisualRx.Publishers.Common
 
         #endregion // MachineInfo
 
+        #region Scheduler
+
         private IScheduler _scheduler;
 
+        /// <summary>
+        /// Gets or sets the scheduler (for publishing).
+        /// </summary>
+        /// <value>
+        /// The scheduler.
+        /// </value>
         public IScheduler Scheduler
         {
             get { return _scheduler; }
@@ -200,5 +210,6 @@ namespace VisualRx.Publishers.Common
             }
         }
 
+        #endregion // Scheduler
     }
 }

@@ -14,9 +14,13 @@ namespace VisualRx.UnitTests
 {
     public class TestVisualRxChannel : IVisualRxChannel
     {
+        public TestVisualRxChannel(Guid? instanceKey = null)
+        {
+            InstanceId = instanceKey ?? Guid.Empty;
+        }
         private readonly List<Marble> _marbles = new List<Marble>();
 
-        public Guid InstanceId { get; } = Guid.Empty;
+        public Guid InstanceId { get; } 
 
         public string ProviderName { get; } = "Testing";
 
