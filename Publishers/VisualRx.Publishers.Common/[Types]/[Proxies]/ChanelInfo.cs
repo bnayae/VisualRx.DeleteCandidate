@@ -14,9 +14,9 @@ using VisualRx.Contracts;
 namespace VisualRx.Publishers.Common
 {
     /// <summary>
-    /// Load information on the monitor proxy plug-ins
+    /// Load information on the monitor channel plug-ins
     /// </summary>
-    public class ProxyInfo : IDisposable
+    public class ChannelInfo : IDisposable
     {
         private readonly TaskCompletionSource<object> _completion =
             new TaskCompletionSource<object>();
@@ -24,13 +24,13 @@ namespace VisualRx.Publishers.Common
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProxyInfo" /> class.
+        /// Initializes a new instance of the <see cref="ChannelInfo" /> class.
         /// </summary>
         /// <param name="providerName">Name of the provider.</param>
         /// <param name="metadata">initialization information</param>
         /// <param name="disposeAction"></param>
         /// <param name="error">The error.</param>
-        public ProxyInfo(
+        public ChannelInfo(
             string providerName,
             string metadata,
             Action disposeAction,

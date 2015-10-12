@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -19,73 +20,106 @@ namespace VisualRx.Publishers.Common
     {
         public static VisualRxSettings Default { get; } = new VisualRxSettings();
 
-        private volatile bool _enable = true;
-        private readonly ConcurrentDictionary<Guid, VisualRxProxyWrapper> _proxies =
-            new ConcurrentDictionary<Guid, VisualRxProxyWrapper>();
+        private readonly ConcurrentDictionary<Guid, VisualRxChannelWrapper> _channels =
+            new ConcurrentDictionary<Guid, VisualRxChannelWrapper>();
         //                                     id, Func<streamKey, proxy provider name, bool>
         private readonly ConcurrentDictionary<Guid, Func<string, string, bool>> _filters =
             new ConcurrentDictionary<Guid, Func<string, string, bool>>();
 
-        #region TryAddProxies
+        #region Ctor
+
+        public VisualRxSettings()
+        {
+            Scheduler = new EventLoopScheduler();
+        }
+
+        #endregion // Ctor
+
+        #region TryAddChannels
 
         /// <summary>
-        /// Adds the proxies.
+        /// Adds the channels.
         /// </summary>
-        /// <param name="proxies">The proxies.</param>
+        /// <param name="channels">The channels for sending the marbles.</param>
         /// <returns>
-        /// initialization stream which complete when all the 
-        /// proxies initialized
-        /// each initialized proxy send the proxy initialization
-        /// information via the Observable
+        /// initialization stream which complete when all the
+        /// channels initialized
+        /// each initialized channel send the channel initialization
+        /// information via Observable
         /// </returns>
-        public IObservable<ProxyInfo> TryAddProxies(
-            params IVisualRxChannel[] proxies)
+        public IObservable<ChannelInfo> TryAddChannels(
+            params IVisualRxChannel[] channels)
         {
-            if (proxies == null || !proxies.Any())
+            if (channels == null || !channels.Any())
                 throw new ArgumentException("missing proxies");
 
             var results =
-                from p in proxies.ToObservable()
-                from info in Observable.StartAsync(() => p.InitializeAsync())
-                select new { Info = info, Proxy = p };
+                from channel in channels.ToObservable()
+                let channelWrapper = new VisualRxChannelWrapper(channel, Log)
+                from info in Observable.StartAsync(
+                    () => channelWrapper.InitializeAsync(Scheduler))
+                select new { Info = info, Channel = channelWrapper };
 
             results = results.Do(item =>
             {
                 if (string.IsNullOrEmpty(item.Info.Error))
                 {
-                    var w = new VisualRxProxyWrapper(item.Proxy, Log);
-                    _proxies.TryAdd(item.Proxy.InstanceId, w);
+                    _channels.TryAdd(
+                        item.Channel.ActualChannel.InstanceId, 
+                        item.Channel);
                     item.Info.Completion.ContinueWith(t =>
                     {
-                        VisualRxProxyWrapper proxy;
-                        _proxies.TryRemove(item.Proxy.InstanceId, out proxy);
+                        VisualRxChannelWrapper channel;
+                        _channels.TryRemove(
+                            item.Channel.ActualChannel.InstanceId, 
+                            out channel);
                     });
                 }
             });
 
             var hot = results.Select(m => m.Info)
-                             .Publish();
+                             .Replay();
             hot.Connect();
             return hot;
         }
 
-        #endregion // TryAddProxies
+        #endregion // TryAddChannels
 
-        #region ClearProxies
+        #region ClearChannels
 
         /// <summary>
-        /// Removes all proxies.
+        /// Removes all channels.
         /// </summary>
-        public void ClearProxies()
+        public void ClearChannels()
         {
-            foreach (var p in _proxies.Values)
+            foreach (var channel in _channels.Values)
             {
-                p.Dispose();
+                channel.Dispose();
             }
         }
 
-        #endregion // ClearProxies
+        #endregion // ClearChannels
 
+        #region GetChannel
+
+        /// <summary>
+        /// Gets the proxies.
+        /// </summary>
+        /// <param name="streamKey">The candidate.</param>
+        /// <returns></returns>
+        internal VisualRxChannelWrapper[] GetChannel(
+            string streamKey)
+        {
+            var channels = from channel in _channels.Values
+                          where _filters.Values.Any(
+                              f => f(streamKey, channel.ProviderName))
+                          select channel;
+            return channels.ToArray();
+        }
+
+        #endregion // GetChannel
+
+        // TODO: Bnaya, 2015-10, Use overload with Filter DTO (StreamKey [equals, start with, etc.], provider name [equals, start with, etc.]) 
         #region AddFilter
 
         /// <summary>
@@ -96,113 +130,44 @@ namespace VisualRx.Publishers.Common
         /// return true for using the proxy
         /// </param>
         /// <returns></returns>
-        public IDisposable AddFilter(
+        public Guid AddFilter(
             Func<string, string, bool> filter)
         {
             Guid key = Guid.NewGuid();
-            var d = Disposable.Create(() =>
-                {
-                    _filters.TryRemove(key, out filter);
-                });
-            if (_filters.TryAdd(key, filter))
-                return d;
-            else
-                return Disposable.Empty;
+            if (!_filters.TryAdd(key, filter))
+                return Guid.Empty;
+
+            return key;
         }
 
         #endregion // AddFilter
 
-        #region GetProxies
+        #region RemoveFilter
 
         /// <summary>
-        /// Gets the proxies.
+        /// Removes the filter.
         /// </summary>
-        /// <param name="streamKey">The candidate.</param>
+        /// <param name="key">The key.</param>
         /// <returns></returns>
-        internal VisualRxProxyWrapper[] GetProxies(
-            string streamKey)
+        public bool RemoveFilter(Guid key)
         {
-            var proxies = from p in _proxies.Values
-                          where _filters.Values.All(f => f(streamKey, p.ProviderName))
-                          select p;
-            return proxies.ToArray();
+            Func<string, string, bool> filter;
+            bool result = _filters.TryRemove(key, out filter);
+            return result;
         }
 
-        #endregion // GetProxies
-
-        #region Send
-
-        /// <summary>
-        /// Sends the specified item.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        internal void Send(Marble item, IEnumerable<VisualRxProxyWrapper> proxies)
-        {
-            #region Validation
-
-            if (proxies == null || !proxies.Any())
-            {
-                Log.Warn($"{nameof(VisualRxSettings)}: No proxy found");
-                return;
-            }
-
-            #endregion Validation
-
-            foreach (VisualRxProxyWrapper proxy in proxies)
-            {
-                try
-                {
-                    //string kind = proxy.Kind;
-                    //if (!VisualRxSettings.Filter(item, kind))
-                    //    continue;
-
-                    //if (!proxy.Filter(item))
-                    //    continue;
-
-                    // the proxy wrapper apply parallelism and batching (VIA Rx Subject)
-                    proxy.Send(item);
-                }
-                #region Exception Handling
-
-                catch (Exception ex)
-                {
-                    Log.Error(nameof(VisualRxSettings), ex);
-                }
-
-                #endregion Exception Handling
-            }
-        }
-
-        #endregion Send
-
-        #region Enable
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="VisualRxSettings"/> is enable.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if enable; otherwise, <c>false</c>.
-        /// </value>
-        public bool Enable
-        {
-            get { return _enable; }
-            set
-            {
-                _enable = value;
-            }
-        }
-
-        #endregion Enable
+        #endregion // RemoveFilter
 
         #region Log
 
         /// <summary>
-        /// Gets the log.
+        /// Gets or set the logger
         /// </summary>
         /// <value>
-        /// The log.
+        /// Action<level, message, exception>
         /// </value>
-        public ILogAdapter Log { get; internal set; } = new DefaultLogger();
+        public Action<LogLevel, string, Exception> Log { get; set; } = 
+            (level, message, ex) => Debug.WriteLine($"VisualRx LOG [{message}]: {message}\r\n\t{ex?.ToString()?.Replace(Environment.NewLine, Environment.NewLine + "\t")}");
 
         #endregion // Log
 
@@ -214,28 +179,26 @@ namespace VisualRx.Publishers.Common
         /// <value>
         /// The machine information.
         /// </value>
-        public string MachineInfo { get; internal set; }
+        public string MachineInfo { get; set; }
 
         #endregion // MachineInfo
 
-        #region DefaultLogger
+        private IScheduler _scheduler;
 
-        /// <summary>
-        /// Default log implementation
-        /// </summary>
-        private class DefaultLogger : ILogAdapter
+        public IScheduler Scheduler
         {
-            public void Error(string text, Exception ex = null)
+            get { return _scheduler; }
+            set
             {
-                Debug.WriteLine($"{text}: {ex}");
-            }
+                _scheduler = value ?? DefaultScheduler.Instance;
 
-            public void Warn(string text, Exception ex = null)
-            {
-                Debug.WriteLine($"{text}: {ex}");
+                _scheduler.Catch<Exception>(e =>
+                {
+                    Log(LogLevel.Error, $"Scheduling (OnBulkSend): {e}", null);
+                    return true;
+                });
             }
         }
 
-        #endregion // DefaultLogger
     }
 }

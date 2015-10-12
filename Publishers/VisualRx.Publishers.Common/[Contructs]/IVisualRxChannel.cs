@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using VisualRx.Contracts;
 
@@ -26,7 +27,7 @@ namespace VisualRx.Publishers.Common
         /// Initialized indication.
         /// </summary>
         /// <returns>initialize information</returns>
-        Task<ProxyInfo> InitializeAsync();
+        Task<ChannelInfo> InitializeAsync(IScheduler scheduler);
 
         /// <summary>
         /// Gets the bulk trigger
@@ -36,11 +37,12 @@ namespace VisualRx.Publishers.Common
         /// or streamRate.Skip(1000).FirstOrDefaultAsync().Repeat() for buffering 1000 items
         /// </summary>
         /// <param name="streamRate">The stream rate.</param>
+        /// <param name="scheduler">The scheduler.</param>
         /// <returns></returns>
         /// <value>
         /// The bulk trigger.
         /// </value>
-        IObservable<Unit> BulkTrigger(IObservable<Unit> streamRate);
+        IObservable<Unit> BulkTrigger(IObservable<Unit> streamRate, IScheduler scheduler);
 
         /// <summary>
         /// Send a balk.

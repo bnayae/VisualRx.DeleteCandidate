@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -56,6 +57,9 @@ namespace VisualRx.Publishers.Common
 
         #region StreamKey
 
+        /// <summary>
+        /// Gets the stream key.
+        /// </summary>
         public string StreamKey { get; }
 
         #endregion // StreamKey
@@ -72,7 +76,6 @@ namespace VisualRx.Publishers.Common
         public IObservable<T> AttachTo(IObservable<T> instance) =>
             instance.Do(PublishOnNext, PublishError, PublishComplete);
         
-
         /// <summary>
         /// Attaches to.
         /// </summary>
@@ -114,7 +117,7 @@ namespace VisualRx.Publishers.Common
         /// Elapsed the specified candidate.
         /// </summary>
         /// <returns></returns>
-        public TimeSpan Elapsed()
+        private TimeSpan Elapsed()
         {
             TimeSpan elapsed = _time.Elapsed;
             TimeSpan result = elapsed - _offset;
@@ -133,25 +136,23 @@ namespace VisualRx.Publishers.Common
         /// <param name="value">The value.</param>
         public void PublishOnNext(T value)
         {
-            if (!_setting.Enable)
-                return;
-
-            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
+            VisualRxChannelWrapper[] channels = _setting.GetChannel(StreamKey);
 
             #region Validation
 
-            if (proxies.Length == 0)
+            if (channels.Length == 0)
                 return;
 
             #endregion // Validation
 
             object item = _surrogate(value);
             TimeSpan elapsed = Elapsed(); 
-            var marbleItem = Marble.CreateNext(StreamKey,
+            var marbleItem = Marble.CreateNext(
+                                StreamKey,
                                 item, 
                                 elapsed,
                                 _setting.MachineInfo);
-            Publish(marbleItem, proxies);
+            Publish(marbleItem, channels);
         }
 
         #endregion PublishOnNext
@@ -163,14 +164,11 @@ namespace VisualRx.Publishers.Common
         /// </summary>
         public void PublishComplete()
         {
-            if (!_setting.Enable)
-                return;
-
-            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
+            VisualRxChannelWrapper[] channels = _setting.GetChannel(StreamKey);
 
             #region Validation
 
-            if (proxies.Length == 0)
+            if (channels.Length == 0)
                 return;
 
             #endregion // Validation
@@ -180,7 +178,7 @@ namespace VisualRx.Publishers.Common
                 StreamKey,
                 elapsed, 
                 _setting.MachineInfo);
-            Publish(marbleItem, proxies);
+            Publish(marbleItem, channels);
         }
 
         #endregion PublishComplete
@@ -193,14 +191,11 @@ namespace VisualRx.Publishers.Common
         /// <param name="ex">The ex.</param>
         public void PublishError(Exception ex)
         {
-            if (!_setting.Enable)
-                return;
-
-            VisualRxProxyWrapper[] proxies = _setting.GetProxies(StreamKey);
+            VisualRxChannelWrapper[] channels = _setting.GetChannel(StreamKey);
 
             #region Validation
 
-            if (proxies.Length == 0)
+            if (channels.Length == 0)
                 return;
 
             #endregion // Validation
@@ -211,7 +206,7 @@ namespace VisualRx.Publishers.Common
                 ex, 
                 elapsed, 
                 _setting.MachineInfo);
-            Publish(marbleItem, proxies);
+            Publish(marbleItem, channels);
         }
 
         #endregion PublishError
@@ -222,11 +217,36 @@ namespace VisualRx.Publishers.Common
         /// <param name="item">The item.</param>
         private void Publish(
             Marble item, 
-            VisualRxProxyWrapper[] proxies)
+            VisualRxChannelWrapper[] channels)
         {
+            #region Validation
+
+            if (channels == null || !channels.Any())
+            {
+                _setting.Log(LogLevel.Warning, $"{nameof(VisualRxSettings)}: No proxy found", null);
+                return;
+            }
+
+            #endregion Validation
+
             item.IndexOrder = _indexOrder;
 
-            _setting.Send(item, proxies);
+            foreach (VisualRxChannelWrapper channel in channels)
+            {
+                try
+                {
+                    // the channel wrapper apply parallelism and batching (VIA Rx Subject)
+                    channel.Send(item);
+                }
+                #region Exception Handling
+
+                catch (Exception ex)
+                {
+                    _setting.Log(LogLevel.Error, nameof(VisualRxSettings), ex);
+                }
+
+                #endregion Exception Handling
+            }
         }
 
         #endregion Publish
@@ -458,5 +478,4 @@ namespace VisualRx.Publishers.Common
 
         #endregion Nested Types
     }
-
 }

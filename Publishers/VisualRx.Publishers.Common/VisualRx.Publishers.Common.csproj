@@ -44,8 +44,8 @@
     <Compile Include="[Extensions]\VisualRxExtensions.cs" />
     <Compile Include="[Types]\VisualRxSettings.cs" />
     <Compile Include="[Types]\StreamChannel.cs" />
-    <Compile Include="[Types]\[Proxies]\ProxyInfo.cs" />
-    <Compile Include="[Types]\[Proxies]\VisualRxProxyWrapper.cs" />
+    <Compile Include="[Types]\[Proxies]\ChanelInfo.cs" />
+    <Compile Include="[Types]\[Proxies]\VisualRxChannelWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\VisualRx.Contracts\VisualRx.Contracts.csproj">

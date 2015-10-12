@@ -19,7 +19,7 @@ namespace VisualRx.Contracts
     //[KnownType(typeof(MarbleComplete))]
     //[KnownType(typeof(MarbleNext))]
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    [DebuggerDisplay("{Name}: {Kind}, {Value}, {Offset}")]
+    [DebuggerDisplay("{StreamKey}: {Kind}, {Value}, {Offset}")]
     public class Marble
     {
         #region Private / Protected Fields

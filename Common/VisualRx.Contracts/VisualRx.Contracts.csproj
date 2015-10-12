@@ -45,9 +45,12 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\JSON\SendThreshold.cs" />
-    <Compile Include="[Contracts]\ILogAdapter.cs" />
+    <Compile Include="[Enums]\LogLevel.cs" />
     <Compile Include="[Enums]\NotificationKind.cs" />
     <Compile Include="[Marble]\Marble.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="[Contracts]\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

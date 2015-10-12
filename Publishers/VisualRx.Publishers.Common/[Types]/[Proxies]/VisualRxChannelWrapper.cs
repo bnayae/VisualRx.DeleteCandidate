@@ -13,60 +13,61 @@ using VisualRx.Contracts;
 namespace VisualRx.Publishers.Common
 {
     /// <summary>
-    /// Visual Rx sender proxy
-    /// Wrap the actual proxy and create a batch (bulk) send.
+    /// Visual Rx sender channel
+    /// Wrap the actual channel and create a batch (bulk) send.
     /// </summary>
-    internal sealed class VisualRxProxyWrapper : IDisposable
+    internal sealed class VisualRxChannelWrapper : IDisposable
     {
         #region Private / Protected Fields
 
-        private readonly IVisualRxChannel _actualProxy;
+        private readonly IVisualRxChannel _actualChannel;
         private ISubject<Marble> _subject;
         private IDisposable _unsubSubject;
 
-        private IScheduler _scheduler;
-        private readonly ILogAdapter _logger;
+        // level, message, error
+        private readonly Action<LogLevel, string, Exception> _logger;
 
         #endregion Private / Protected Fields
 
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VisualRxProxyWrapper" /> class.
+        /// Initializes a new instance of the <see cref="VisualRxChannelWrapper" /> class.
         /// </summary>
-        public VisualRxProxyWrapper(
-            IVisualRxChannel actualProxy, 
-            ILogAdapter logger)
+        /// <param name="actualChannel">The actual channel.</param>
+        /// <param name="logger">level, message, error</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// </exception>
+        public VisualRxChannelWrapper(
+            IVisualRxChannel actualChannel,
+            Action<LogLevel, string, Exception> logger)
         {
-            if (actualProxy == null)
-                throw new ArgumentNullException(nameof(actualProxy));
+            if (actualChannel == null)
+                throw new ArgumentNullException(nameof(actualChannel));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
-            _actualProxy = actualProxy;
+            _actualChannel = actualChannel;
             _logger = logger;
         }
 
         #endregion // Ctor
 
-        #region ActualProxy
+        #region ActualChannel
 
         /// <summary>
-        /// Gets the actual proxy.
+        /// Gets the actual channel.
         /// </summary>
-        /// <value>
-        /// The actual proxy.
-        /// </value>
-        internal IVisualRxChannel ActualProxy { get { return _actualProxy; } }
+        internal IVisualRxChannel ActualChannel => _actualChannel;
 
-        #endregion // ActualProxy
+        #endregion // ActualChannel
 
         #region ProviderName
 
         /// <summary>
-        /// Gets the proxy Name.
+        /// Gets the name of the provider.
         /// </summary>
-        public string ProviderName { get { return _actualProxy.ProviderName; } }
+        public string ProviderName => _actualChannel.ProviderName;
 
         #endregion ProviderName
 
@@ -75,34 +76,37 @@ namespace VisualRx.Publishers.Common
         #region Initialize
 
         /// <summary>
-        /// Initializes this instance.
+        /// Initializes this channel.
         /// </summary>
-        /// <returns>Initialize information</returns>
-        public Task<ProxyInfo> InitializeAsync()
+        /// <param name="scheduler">The scheduler.</param>
+        /// <returns>
+        /// Initialize information
+        /// </returns>
+        public Task<ChannelInfo> InitializeAsync(
+            IScheduler scheduler)
         {
-            #region _scheduler = new EventLoopScheduler(...)
-
-            _scheduler = new EventLoopScheduler();
-
-            _scheduler.Catch<Exception>(e =>
-            {
-                _logger.Error("Scheduling (OnBulkSend): {0}", e);
-                return true;
-            });
-
-            #endregion _scheduler = new EventLoopScheduler(...)
-
             _subject = new Subject<Marble>();
+            var marbleStream = _subject
+                    .Select(m => Unit.Default);
+
+            var completionTrigger = _subject
+                    .Where(m => m.Kind != MarbleKind.OnNext)
+                    .Select(m => Unit.Default);
+
+            var bufferTrigger = _actualChannel
+                .BulkTrigger(marbleStream, scheduler)
+                .Merge(completionTrigger);
+
             var tmpStream = _subject
-                .ObserveOn(_scheduler) // single thread
+                .ObserveOn(scheduler) // single thread
                                        //.Synchronize()
                 .Retry()
-                .Buffer(_actualProxy.BulkTrigger(_subject.Select(m => Unit.Default)))
+                .Buffer(bufferTrigger)
                 .Where(items => items.Count != 0);
             _unsubSubject = tmpStream.Subscribe(
-                m => _actualProxy.BulkSend(m));
+                m => _actualChannel.BulkSend(m));
 
-            return _actualProxy.InitializeAsync();
+            return _actualChannel.InitializeAsync(scheduler);
         }
 
         #endregion Initialize
@@ -147,13 +151,13 @@ namespace VisualRx.Publishers.Common
                 if (unsubSubject != null)
                     unsubSubject.Dispose();
 
-                _actualProxy.Dispose();
+                _actualChannel.Dispose();
 
                 Dispose(disposed);
             }
             catch (Exception ex)
             {
-                _logger.Error($"{this.GetType().Name}.{nameof(Dispose)}", ex);
+                _logger(LogLevel.Error, $"{this.GetType().Name}.{nameof(Dispose)}", ex);
             }
         }
 
@@ -167,10 +171,10 @@ namespace VisualRx.Publishers.Common
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="VisualRxProxyWrapper"/> is reclaimed by garbage collection.
+        /// <see cref="VisualRxChannelWrapper"/> is reclaimed by garbage collection.
         /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly", Justification = "DisposeInternal does call Dispose(disposed)")]
-        ~VisualRxProxyWrapper()
+        ~VisualRxChannelWrapper()
         {
             DisposeInternal(false);
         }
