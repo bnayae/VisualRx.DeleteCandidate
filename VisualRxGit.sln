@@ -19,17 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Solution Items\VisualRx.Version.targets = Solution Items\VisualRx.Version.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Contracts", "Common\VisualRx.Contracts\VisualRx.Contracts.csproj", "{BA07D849-D696-4843-93FE-DB64CD831A5F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.UnitTests", "Tests\VisualRx.UnitTests\VisualRx.UnitTests.csproj", "{733A6050-CD09-46EB-A8D7-835F43F51C52}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Publishers.Common", "Publishers\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj", "{4E12E6FF-7329-4548-96D7-143B63D0E53C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Publishers.ETW", "Publishers\Providers\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj", "{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Listeners.ETW", "Listeners\Providers\VisualRx.Listeners.ETW\VisualRx.Listeners.ETW.csproj", "{BC77CDD9-7AF5-488B-8708-55388D6BD217}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Listeners.Common", "Listeners\VisualRx.Listeners.Common\VisualRx.Listeners.Common.csproj", "{C19AC05B-A87B-4A54-A467-63160F5FB26C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{A122B486-3682-4621-8EE5-F83E96D08D8E}"
 EndProject
@@ -37,20 +27,34 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{5BFB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ETW", "ETW", "{9C919FB8-04E3-4613-8215-1F8F54620A3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Contracts", "Code\Core\VisualRx.Contracts\VisualRx.Contracts.csproj", "{BA07D849-D696-4843-93FE-DB64CD831A5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Listeners.Common", "Code\Core\VisualRx.Listeners.Common\VisualRx.Listeners.Common.csproj", "{C19AC05B-A87B-4A54-A467-63160F5FB26C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Publishers.Common", "Code\Core\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj", "{4E12E6FF-7329-4548-96D7-143B63D0E53C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Publishers.ETW", "Code\Plugins\ETW\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj", "{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Listeners.ETW", "Code\Plugins\ETW\VisualRx.Listeners.ETW\VisualRx.Listeners.ETW.csproj", "{BC77CDD9-7AF5-488B-8708-55388D6BD217}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{733A6050-CD09-46EB-A8D7-835F43F51C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA07D849-D696-4843-93FE-DB64CD831A5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E12E6FF-7329-4548-96D7-143B63D0E53C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E12E6FF-7329-4548-96D7-143B63D0E53C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E12E6FF-7329-4548-96D7-143B63D0E53C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,21 +67,17 @@ Global
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C19AC05B-A87B-4A54-A467-63160F5FB26C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BA07D849-D696-4843-93FE-DB64CD831A5F} = {A122B486-3682-4621-8EE5-F83E96D08D8E}
 		{733A6050-CD09-46EB-A8D7-835F43F51C52} = {78AA7CBB-023F-41E0-A9F7-E0F6AA3EA90E}
+		{9C919FB8-04E3-4613-8215-1F8F54620A3C} = {5BFBE2BA-FC24-451C-BAC4-704ABFC94E6F}
+		{BA07D849-D696-4843-93FE-DB64CD831A5F} = {A122B486-3682-4621-8EE5-F83E96D08D8E}
+		{C19AC05B-A87B-4A54-A467-63160F5FB26C} = {A122B486-3682-4621-8EE5-F83E96D08D8E}
 		{4E12E6FF-7329-4548-96D7-143B63D0E53C} = {A122B486-3682-4621-8EE5-F83E96D08D8E}
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
-		{C19AC05B-A87B-4A54-A467-63160F5FB26C} = {A122B486-3682-4621-8EE5-F83E96D08D8E}
-		{9C919FB8-04E3-4613-8215-1F8F54620A3C} = {5BFBE2BA-FC24-451C-BAC4-704ABFC94E6F}
 	EndGlobalSection
 EndGlobal

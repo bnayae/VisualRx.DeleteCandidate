@@ -5,11 +5,11 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4E12E6FF-7329-4548-96D7-143B63D0E53C}</ProjectGuid>
+    <ProjectGuid>{C19AC05B-A87B-4A54-A467-63160F5FB26C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualRx.Publishers.Common</RootNamespace>
-    <AssemblyName>VisualRx.Publishers.Common</AssemblyName>
+    <RootNamespace>VisualRx.Listeners.Common</RootNamespace>
+    <AssemblyName>VisualRx.Listeners.Common</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -39,16 +39,14 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="[Contructs]\IVisualRxChannel.cs" />
+    <Compile Include="..\..\..\Solution Items\AssemblyInfo.Common.cs">
+      <Link>Properties\AssemblyInfo.Common.cs</Link>
+    </Compile>
+    <Compile Include="IVisualRxListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="[Extensions]\VisualRxExtensions.cs" />
-    <Compile Include="[Types]\VisualRxSettings.cs" />
-    <Compile Include="[Types]\StreamChannel.cs" />
-    <Compile Include="[Types]\[Proxies]\ChanelInfo.cs" />
-    <Compile Include="[Types]\[Proxies]\VisualRxChannelWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\VisualRx.Contracts\VisualRx.Contracts.csproj">
+    <ProjectReference Include="..\VisualRx.Contracts\VisualRx.Contracts.csproj">
       <Project>{ba07d849-d696-4843-93fe-db64cd831a5f}</Project>
       <Name>VisualRx.Contracts</Name>
     </ProjectReference>

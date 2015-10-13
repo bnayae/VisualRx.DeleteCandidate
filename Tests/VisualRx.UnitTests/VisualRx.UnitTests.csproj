@@ -89,17 +89,25 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\VisualRx.Contracts\VisualRx.Contracts.csproj">
+    <ProjectReference Include="..\..\Code\Core\VisualRx.Contracts\VisualRx.Contracts.csproj">
       <Project>{ba07d849-d696-4843-93fe-db64cd831a5f}</Project>
       <Name>VisualRx.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Publishers\Providers\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj">
-      <Project>{90b8a3b2-9d63-4b7c-a6f5-9d4ee3c0de3c}</Project>
-      <Name>VisualRx.Publishers.ETW</Name>
+    <ProjectReference Include="..\..\Code\Core\VisualRx.Listeners.Common\VisualRx.Listeners.Common.csproj">
+      <Project>{c19ac05b-a87b-4a54-a467-63160f5fb26c}</Project>
+      <Name>VisualRx.Listeners.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Publishers\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
+    <ProjectReference Include="..\..\Code\Core\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
       <Project>{4e12e6ff-7329-4548-96d7-143b63d0e53c}</Project>
       <Name>VisualRx.Publishers.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.Listeners.ETW\VisualRx.Listeners.ETW.csproj">
+      <Project>{bc77cdd9-7af5-488b-8708-55388d6bd217}</Project>
+      <Name>VisualRx.Listeners.ETW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj">
+      <Project>{90b8a3b2-9d63-4b7c-a6f5-9d4ee3c0de3c}</Project>
+      <Name>VisualRx.Publishers.ETW</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\Solution Items\AssemblyInfo.Common.cs">
+      <Link>Properties\AssemblyInfo.Common.cs</Link>
+    </Compile>
     <Compile Include="VisualRxEventSource.cs" />
     <Compile Include="EtwVisualRxChannel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,11 +72,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\VisualRx.Contracts\VisualRx.Contracts.csproj">
+    <ProjectReference Include="..\..\..\Core\VisualRx.Contracts\VisualRx.Contracts.csproj">
       <Project>{ba07d849-d696-4843-93fe-db64cd831a5f}</Project>
       <Name>VisualRx.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
+    <ProjectReference Include="..\..\..\Core\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
       <Project>{4e12e6ff-7329-4548-96d7-143b63d0e53c}</Project>
       <Name>VisualRx.Publishers.Common</Name>
     </ProjectReference>
