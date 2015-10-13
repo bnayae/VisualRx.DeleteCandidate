@@ -11,7 +11,7 @@ using VisualRx.Publishers.Common;
 using System.Reactive;
 using System.Reactive.Concurrency;
 
-namespace VisualRx.Publishers.ETW
+namespace VisualRx.ETW.Publishers
 {
     public sealed class EtwVisualRxChannel : IVisualRxChannel
     {

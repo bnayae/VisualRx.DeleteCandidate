@@ -7,8 +7,8 @@
     <ProjectGuid>{BC77CDD9-7AF5-488B-8708-55388D6BD217}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualRx.Listeners.ETW</RootNamespace>
-    <AssemblyName>VisualRx.Listeners.ETW</AssemblyName>
+    <RootNamespace>VisualRx.ETW.Listeners</RootNamespace>
+    <AssemblyName>VisualRx.ETW.Listeners</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -76,6 +76,10 @@
     <ProjectReference Include="..\..\..\Core\VisualRx.Listeners.Common\VisualRx.Listeners.Common.csproj">
       <Project>{c19ac05b-a87b-4a54-a467-63160f5fb26c}</Project>
       <Name>VisualRx.Listeners.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VisualRx.ETW.Common\VisualRx.ETW.Common.csproj">
+      <Project>{4602e191-3e64-4253-ae18-85c519da8b10}</Project>
+      <Name>VisualRx.ETW.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

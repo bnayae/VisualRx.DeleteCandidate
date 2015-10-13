@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VisualRx.Contracts;
 
-namespace VisualRx.Publishers.ETW
+namespace VisualRx.ETW.Publishers
 {
     [EventSource(Name = "VisualRx",
         Guid = "2C62A9B8-6082-43F8-BEBD-99EFFF418C4B")]

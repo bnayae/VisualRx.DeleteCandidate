@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
-using VisualRx.Publishers.ETW;
+using VisualRx.ETW.Publishers;
 
 namespace VisualRx.UnitTests
 {

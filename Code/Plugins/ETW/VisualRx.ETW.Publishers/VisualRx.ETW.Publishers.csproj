@@ -7,8 +7,8 @@
     <ProjectGuid>{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualRx.Publishers.ETW</RootNamespace>
-    <AssemblyName>VisualRx.Publishers.ETW</AssemblyName>
+    <RootNamespace>VisualRx.ETW.Publishers</RootNamespace>
+    <AssemblyName>VisualRx.ETW.Publishers</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -54,7 +54,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
@@ -79,6 +78,10 @@
     <ProjectReference Include="..\..\..\Core\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
       <Project>{4e12e6ff-7329-4548-96d7-143b63d0e53c}</Project>
       <Name>VisualRx.Publishers.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VisualRx.ETW.Common\VisualRx.ETW.Common.csproj">
+      <Project>{4602e191-3e64-4253-ae18-85c519da8b10}</Project>
+      <Name>VisualRx.ETW.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -101,13 +101,17 @@
       <Project>{4e12e6ff-7329-4548-96d7-143b63d0e53c}</Project>
       <Name>VisualRx.Publishers.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.Listeners.ETW\VisualRx.Listeners.ETW.csproj">
-      <Project>{bc77cdd9-7af5-488b-8708-55388d6bd217}</Project>
-      <Name>VisualRx.Listeners.ETW</Name>
+    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.ETW.Common\VisualRx.ETW.Common.csproj">
+      <Project>{4602e191-3e64-4253-ae18-85c519da8b10}</Project>
+      <Name>VisualRx.ETW.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj">
+    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.ETW.Listeners\VisualRx.ETW.Listeners.csproj">
+      <Project>{bc77cdd9-7af5-488b-8708-55388d6bd217}</Project>
+      <Name>VisualRx.ETW.Listeners</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Code\Plugins\ETW\VisualRx.ETW.Publishers\VisualRx.ETW.Publishers.csproj">
       <Project>{90b8a3b2-9d63-4b7c-a6f5-9d4ee3c0de3c}</Project>
-      <Name>VisualRx.Publishers.ETW</Name>
+      <Name>VisualRx.ETW.Publishers</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
