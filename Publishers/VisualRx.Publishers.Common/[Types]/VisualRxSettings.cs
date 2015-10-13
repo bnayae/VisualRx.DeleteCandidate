@@ -169,7 +169,7 @@ namespace VisualRx.Publishers.Common
         /// Action<level, message, exception>
         /// </value>
         public Action<LogLevel, string, Exception> Log { get; set; } = 
-            (level, message, ex) => Debug.WriteLine($"VisualRx LOG [{message}]: {message}\r\n\t{ex?.ToString()?.Replace(Environment.NewLine, Environment.NewLine + "\t")}");
+            (level, message, ex) => Debug.WriteLine($"VisualRx Publisher LOG [{message}]: {message}\r\n\t{ex?.ToString()?.Replace(Environment.NewLine, Environment.NewLine + "\t")}");
 
         #endregion // Log
 

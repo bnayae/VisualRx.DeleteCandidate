@@ -8,7 +8,10 @@ namespace VisualRx.Contracts
     /// </summary>
     public enum LogLevel
     {
-       Warning = 3, 
-       Error = 4,
+        Critical = 1,
+        Error = 3,
+        Warning = 7,
+        Information = 15,
+        Verbose = 31,
     }
 }

@@ -1,3 +1,2 @@
-Monitor(setting) -> setting GetOrAddMonitorOperation
+Admin (Proxy + Service)
 
-setting -> AddKeywords to stream

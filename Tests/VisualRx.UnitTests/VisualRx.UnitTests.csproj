@@ -77,10 +77,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Helpers\Person.cs" />
     <Compile Include="Serialization\MarbleBase_Serialization_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestVisualRxChannel.cs" />
+    <Compile Include="Helpers\TestVisualRxChannel.cs" />
     <Compile Include="VisualRxTestBase.cs" />
+    <Compile Include="VisualRx_EtwChannel_Tests.cs" />
     <Compile Include="VisualRx_API_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +92,10 @@
     <ProjectReference Include="..\..\Common\VisualRx.Contracts\VisualRx.Contracts.csproj">
       <Project>{ba07d849-d696-4843-93fe-db64cd831a5f}</Project>
       <Name>VisualRx.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Publishers\Providers\VisualRx.Publishers.ETW\VisualRx.Publishers.ETW.csproj">
+      <Project>{90b8a3b2-9d63-4b7c-a6f5-9d4ee3c0de3c}</Project>
+      <Name>VisualRx.Publishers.ETW</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Publishers\VisualRx.Publishers.Common\VisualRx.Publishers.Common.csproj">
       <Project>{4e12e6ff-7329-4548-96d7-143b63d0e53c}</Project>
