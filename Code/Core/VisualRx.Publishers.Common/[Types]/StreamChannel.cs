@@ -22,7 +22,7 @@ namespace VisualRx.Publishers.Common
     {
         #region Private / Protected Fields
 
-        private readonly VisualRxSettings _setting;
+        private readonly VisualRxPublishersSettings _setting;
         private readonly double _indexOrder;
         private readonly Func<T, object> _surrogate;
         private static readonly Stopwatch _time = Stopwatch.StartNew();
@@ -33,7 +33,7 @@ namespace VisualRx.Publishers.Common
         #region Constructors
 
         public StreamChannel(
-            VisualRxSettings setting,
+            VisualRxPublishersSettings setting,
             string streamKey,
             double indexOrder,
             Func<T, object> surrogate)
@@ -223,7 +223,7 @@ namespace VisualRx.Publishers.Common
 
             if (channels == null || !channels.Any())
             {
-                _setting.Log(LogLevel.Warning, $"{nameof(VisualRxSettings)}: No proxy found", null);
+                _setting.Log(LogLevel.Warning, $"{nameof(VisualRxPublishersSettings)}: No proxy found", null);
                 return;
             }
 
@@ -242,7 +242,7 @@ namespace VisualRx.Publishers.Common
 
                 catch (Exception ex)
                 {
-                    _setting.Log(LogLevel.Error, nameof(VisualRxSettings), ex);
+                    _setting.Log(LogLevel.Error, nameof(VisualRxPublishersSettings), ex);
                 }
 
                 #endregion Exception Handling

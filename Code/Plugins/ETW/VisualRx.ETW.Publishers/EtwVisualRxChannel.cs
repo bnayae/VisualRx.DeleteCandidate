@@ -10,6 +10,7 @@ using VisualRx.Contracts;
 using VisualRx.Publishers.Common;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using VisualRx.ETW.Common;
 
 namespace VisualRx.ETW.Publishers
 {
@@ -17,18 +18,8 @@ namespace VisualRx.ETW.Publishers
     {
         private readonly VisualRxEventSource _etw = new VisualRxEventSource();
         private readonly JsonSerializerSettings _jsonSetting;
-        private readonly static JsonSerializerSettings _jsonDefaultSetting;
 
         #region Ctor
-
-        /// <summary>
-        /// Initializes the <see cref="EtwVisualRxChannel"/> class.
-        /// </summary>
-        static EtwVisualRxChannel()
-        {
-            _jsonDefaultSetting.Converters.Add(new StringEnumConverter());
-            _jsonDefaultSetting.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EtwVisualRxChannel"/> class.
@@ -36,7 +27,7 @@ namespace VisualRx.ETW.Publishers
         /// <param name="jsonSetting">The json setting.</param>
         public EtwVisualRxChannel(JsonSerializerSettings jsonSetting = null)
         {
-            _jsonSetting = jsonSetting ?? _jsonDefaultSetting;
+            _jsonSetting = jsonSetting ?? Constants.JsonDefaultSetting;
         }
 
         #endregion // Ctor

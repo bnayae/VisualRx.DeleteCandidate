@@ -4,23 +4,24 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
+using VisualRx.ETW.Listeners;
 
 namespace VisualRx.UnitTests
 {
     [TestClass]
-    public class VisualRx_API_Tests: VisualRxTestBase
+    public class VisualRx_API_Tests: VisualRxTestsBase
     {
         [TestMethod]
         public async Task Send_Receive_Test()
         {
             // arrange
             var testChannel = new TestVisualRxChannel();
-            await Setting.TryAddChannels(testChannel);
-            Setting.AddFilter((key, provider) => true);
+            await PublisherSetting.TryAddChannels(testChannel);
+            PublisherSetting.AddFilter((key, provider) => true);
 
             // act
             var xs = Observable.Range(0, 10, _scheduler)
-                        .Monitor("Test", Setting);
+                        .Monitor("Test", PublisherSetting);
             xs.Subscribe(v => { });
             _scheduler.AdvanceBy(11);
 
@@ -37,15 +38,15 @@ namespace VisualRx.UnitTests
         {
             // arrange
             var testChannel = new TestVisualRxChannel();
-            await Setting.TryAddChannels(testChannel);
+            await PublisherSetting.TryAddChannels(testChannel);
 
             // act
             var xs = Observable.Range(0, 10, _scheduler)
-                        .Monitor("Test", Setting)
-                        .Monitor("Test not filtered", Setting);
+                        .Monitor("Test", PublisherSetting)
+                        .Monitor("Test not filtered", PublisherSetting);
             xs.Subscribe(v => { });
             _scheduler.AdvanceBy(5);
-            Setting.AddFilter((key, provider) => key == "Test");
+            PublisherSetting.AddFilter((key, provider) => key == "Test");
             _scheduler.AdvanceBy(6);
 
             // verify
@@ -62,13 +63,13 @@ namespace VisualRx.UnitTests
             // arrange
             var testChannelA = new TestVisualRxChannel(Guid.NewGuid());
             var testChannelB = new TestVisualRxChannel(Guid.NewGuid());
-            await Setting.TryAddChannels(testChannelA, testChannelB);
+            await PublisherSetting.TryAddChannels(testChannelA, testChannelB);
 
             // act
             var xs = Observable.Range(0, 10, _scheduler)
-                        .Monitor("Test", Setting);
+                        .Monitor("Test", PublisherSetting);
             xs.Subscribe(v => { });
-            Setting.AddFilter((key, channel) => channel == testChannelA);
+            PublisherSetting.AddFilter((key, channel) => channel == testChannelA);
             _scheduler.AdvanceBy(11);
 
             // verify

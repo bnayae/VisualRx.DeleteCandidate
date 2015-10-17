@@ -45,7 +45,7 @@
     <Compile Include="[Contructs]\IVisualRxChannel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="[Extensions]\VisualRxExtensions.cs" />
-    <Compile Include="[Types]\VisualRxSettings.cs" />
+    <Compile Include="[Types]\VisualRxPublishersSettings.cs" />
     <Compile Include="[Types]\StreamChannel.cs" />
     <Compile Include="[Types]\[Proxies]\ChanelInfo.cs" />
     <Compile Include="[Types]\[Proxies]\VisualRxChannelWrapper.cs" />

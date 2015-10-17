@@ -18,9 +18,9 @@ namespace VisualRx.Publishers.Common
     /// IMPORTANT: nothing will be published until setting
     ///            both filters and channels
     /// </summary>
-    public class VisualRxSettings
+    public class VisualRxPublishersSettings
     {
-        public static VisualRxSettings Default { get; } = new VisualRxSettings();
+        public static VisualRxPublishersSettings Default { get; } = new VisualRxPublishersSettings();
 
         private readonly ConcurrentDictionary<Guid, VisualRxChannelWrapper> _channels =
             new ConcurrentDictionary<Guid, VisualRxChannelWrapper>();
@@ -30,7 +30,7 @@ namespace VisualRx.Publishers.Common
 
         #region Ctor
 
-        public VisualRxSettings()
+        public VisualRxPublishersSettings()
         {
             Scheduler = new EventLoopScheduler();
         }

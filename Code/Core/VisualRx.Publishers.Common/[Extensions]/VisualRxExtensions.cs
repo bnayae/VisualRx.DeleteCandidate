@@ -36,7 +36,7 @@ namespace System.Reactive.Linq
         public static IObservable<IObservable<T>> MonitorMany<T>(
             this IObservable<IObservable<T>> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = MonitorMany(instance, name, null, 
                 (Func<T, object>)null, setting);
@@ -56,7 +56,7 @@ namespace System.Reactive.Linq
             this IObservable<IObservable<T>> instance,
             string name,
             double orderingBaseIndex,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = MonitorMany(instance, name, orderingBaseIndex, 
                 (Func<T, object>)null, setting);
@@ -80,9 +80,9 @@ namespace System.Reactive.Linq
             string name,
             double? orderingBaseIndex,
             Func<T, object> surrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
-            setting = setting ?? VisualRxSettings.Default;
+            setting = setting ?? VisualRxPublishersSettings.Default;
             double order = orderingBaseIndex ?? Interlocked.Increment(ref _order);
             int index = 0;
             var xs = from obs in instance
@@ -109,7 +109,7 @@ namespace System.Reactive.Linq
         public static IObservable<IGroupedObservable<TKey, TElement>> MonitorGroup<TKey, TElement>(
             this IObservable<IGroupedObservable<TKey, TElement>> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             return MonitorGroup(instance, name, null,
                 (Func<TElement, object>)null, setting);
@@ -129,7 +129,7 @@ namespace System.Reactive.Linq
             this IObservable<IGroupedObservable<TKey, TElement>> instance,
             string name,
             double orderingBaseIndex,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             return MonitorGroup(instance, 
                 name, orderingBaseIndex,
@@ -155,9 +155,9 @@ namespace System.Reactive.Linq
             string name,
             double? orderingBaseIndex,
             Func<TElement, object> elementSurrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
-            setting = setting ?? VisualRxSettings.Default;
+            setting = setting ?? VisualRxPublishersSettings.Default;
             Func<IGroupedObservable<TKey, TElement>, object> keySurrogate =
                 g => $"Key = {g.Key}";
 
@@ -193,7 +193,7 @@ namespace System.Reactive.Linq
         public static IConnectableObservable<T> Monitor<T>(
             this IConnectableObservable<T> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = Monitor(instance, name, null,
                 (Func<T, object>)null, setting);
@@ -213,7 +213,7 @@ namespace System.Reactive.Linq
             this IConnectableObservable<T> instance,
             string name,
             double orderingIndex,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = Monitor<T>(instance, name, orderingIndex, 
                 (Func<T, object>)null, setting);
@@ -237,9 +237,9 @@ namespace System.Reactive.Linq
             string name,
             double? orderingIndex,
             Func<T, object> surrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
-            setting = setting ?? VisualRxSettings.Default;
+            setting = setting ?? VisualRxPublishersSettings.Default;
             double order = orderingIndex ?? Interlocked.Increment(ref _order);
             var monitor = new StreamChannel<T>(
                 setting, name, order, surrogate);
@@ -265,7 +265,7 @@ namespace System.Reactive.Linq
         public static ISubject<T> Monitor<T>(
             this ISubject<T> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             return Monitor(
                 instance,
@@ -289,7 +289,7 @@ namespace System.Reactive.Linq
             this ISubject<T> instance,
             string name,
             double orderingIndex,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             return Monitor<T>(
                 instance,
@@ -316,9 +316,9 @@ namespace System.Reactive.Linq
             string name,
             double? orderingIndex,
             Func<T, object> surrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
-            setting = setting ?? VisualRxSettings.Default;
+            setting = setting ?? VisualRxPublishersSettings.Default;
             double order = orderingIndex ?? Interlocked.Increment(ref _order);
             var monitor = new StreamChannel<T>(
                 setting, name, order, surrogate);
@@ -342,7 +342,7 @@ namespace System.Reactive.Linq
         public static ISubject<TIn, TOut> Monitor<TIn, TOut>(
             this ISubject<TIn, TOut> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = Monitor(instance, name, null, 
                 (Func<TOut, object>)null, setting);
@@ -363,7 +363,7 @@ namespace System.Reactive.Linq
             this ISubject<TIn, TOut> instance,
             string name,
             double orderingIndex,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = Monitor<TIn, TOut>(instance, name, orderingIndex,
                 (Func<TOut, object>)null, setting);
@@ -388,7 +388,7 @@ namespace System.Reactive.Linq
             string name,
             double? orderingIndex,
             Func<TOut, object> surrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             double order = orderingIndex ?? Interlocked.Increment(ref _order);
             var monitor = new StreamChannel<TOut>(
@@ -415,7 +415,7 @@ namespace System.Reactive.Linq
         public static IObservable<T> Monitor<T>(
             this IObservable<T> instance,
             string name,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
             var result = Monitor<T>(
                 instance, name, null,
@@ -459,9 +459,9 @@ namespace System.Reactive.Linq
             string name,
             double? orderingIndex,
             Func<T, object> surrogate,
-            VisualRxSettings setting = null)
+            VisualRxPublishersSettings setting = null)
         {
-            setting = setting ?? VisualRxSettings.Default;
+            setting = setting ?? VisualRxPublishersSettings.Default;
             double order = orderingIndex ?? Interlocked.Increment(ref _order);
             var monitor = new StreamChannel<T>(
                  setting, name, order, surrogate);
