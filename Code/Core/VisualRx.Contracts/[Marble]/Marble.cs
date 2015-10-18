@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive;
 using System.Threading;
 
 #endregion Using
@@ -22,12 +23,7 @@ namespace VisualRx.Contracts
     [DebuggerDisplay("{StreamKey}: {Kind}, {Value}, {Offset}")]
     public class Marble
     {
-        #region Private / Protected Fields
-
-        //private static NetDataContractSerializer _ser = new NetDataContractSerializer();
-        //private static BinaryFormatter _formater = new BinaryFormatter();
-
-        #endregion Private / Protected Fields
+        private static readonly Func<Exception, string> DEFAULT_ERROR_FORMATTER = ex => ex.ToString();
 
         #region Constructors
 
@@ -45,7 +41,7 @@ namespace VisualRx.Contracts
         /// <param name="machineName">Name of the machine.</param>
         internal Marble(
             string streamKey,
-            MarbleKind kind,
+            NotificationKind kind,
             TimeSpan elapsed,
             string machineName)
         {
@@ -72,7 +68,7 @@ namespace VisualRx.Contracts
         /// The value.
         /// </value>
         [JsonProperty]
-        public JToken Value { get; private set; }
+        public string Value { get; private set; }
 
         #endregion // Value
 
@@ -103,7 +99,7 @@ namespace VisualRx.Contracts
         /// </summary>
         [JsonProperty]
         [JsonConverter(typeof(StringEnumConverter))]
-        public MarbleKind Kind { get; private set; }
+        public NotificationKind Kind { get; private set; }
 
         #endregion Kind
 
@@ -141,6 +137,8 @@ namespace VisualRx.Contracts
 
         #region Methods
 
+        // TODO: Bnaya, 2015-10: #3, Enable custom serialization
+        //                           consider using extension methods
         #region GetValue
 
         /// <summary>
@@ -148,30 +146,40 @@ namespace VisualRx.Contracts
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T GetValue<T>() => Value.ToObject<T>();
+        public T GetValue<T>(JsonSerializerSettings setting = null)
+        {
+            setting = setting ?? Constants.JsonDefaultSetting;
+            T instance = JsonConvert.DeserializeObject<T>(Value, setting);
+            return instance;
+        }
 
         #endregion // GetValue
 
+        // TODO: Bnaya, 2015-10: #3, Enable custom serialization
+        //                           consider using extension methods
         #region CreateNext
 
         /// <summary>
         /// Creates the specified name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="streamKey"></param>
+        /// <param name="streamKey">The stream key.</param>
         /// <param name="item">The item.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
+        /// <param name="setting">The setting.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static Marble CreateNext<T>(
                         string streamKey,
                         T item,
                         TimeSpan elapsed,
-                        string machineName)
+                        string machineName,
+                        JsonSerializerSettings setting = null)
         {
-            var msg = new Marble(streamKey, MarbleKind.OnNext, elapsed, machineName);
-            msg.Value = JToken.FromObject(item);
+            setting = setting ?? Constants.JsonDefaultSetting;
+            var msg = new Marble(streamKey, NotificationKind.OnNext, elapsed, machineName);
+            msg.Value = JsonConvert.SerializeObject(item, setting);
             return msg;
         }
 
@@ -182,20 +190,23 @@ namespace VisualRx.Contracts
         /// <summary>
         /// Creates the error.
         /// </summary>
-        /// <param name="streamKey"></param>
+        /// <param name="streamKey">The stream key.</param>
         /// <param name="ex">The ex.</param>
         /// <param name="elapsed">The elapsed.</param>
         /// <param name="machineName">Name of the machine.</param>
+        /// <param name="formatter">The formatter.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static Marble CreateError(
                         string streamKey,
                         Exception ex,
                         TimeSpan elapsed,
-                        string machineName)
+                        string machineName,
+                        Func<Exception, string> formatter = null)
         {
-            var msg = new Marble(streamKey, MarbleKind.OnError, elapsed, machineName);
-            msg.Value = JToken.FromObject(ex);
+            formatter = formatter ?? DEFAULT_ERROR_FORMATTER;
+            var msg = new Marble(streamKey, NotificationKind.OnError, elapsed, machineName);
+            msg.Value = formatter(ex);
             return msg;
         }
         #endregion // CreateError
@@ -214,7 +225,7 @@ namespace VisualRx.Contracts
             string streamKey,
             TimeSpan elapsed, string machineName)
         {
-            var msg = new Marble(streamKey, MarbleKind.OnCompleted, elapsed, machineName);
+            var msg = new Marble(streamKey, NotificationKind.OnCompleted, elapsed, machineName);
             return msg;
         } 
 

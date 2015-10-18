@@ -47,7 +47,6 @@
     <Compile Include="Types\Constants.cs" />
     <Compile Include="Types\JSON\SendThreshold Deprecate.cs" />
     <Compile Include="[Enums]\LogLevel.cs" />
-    <Compile Include="[Enums]\NotificationKind.cs" />
     <Compile Include="[Marble]\Marble.cs" />
   </ItemGroup>
   <ItemGroup>

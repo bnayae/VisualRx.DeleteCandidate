@@ -14,9 +14,19 @@ namespace VisualRx.Listeners.Common
     /// </summary>
     public interface IVisualRxListener: IDisposable 
     {
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         Action<LogLevel, string, Exception> Log { get; set; }
 
-        Task<IObservable<Marble>> Connect(CancellationToken token);
+        /// <summary>
+        /// Gets the marble stream asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        Task<IObservable<Marble>> GetStreamAsync();
         
     }
 }

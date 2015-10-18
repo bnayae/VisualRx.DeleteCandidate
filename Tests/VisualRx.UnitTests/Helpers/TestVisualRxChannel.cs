@@ -27,9 +27,9 @@ namespace VisualRx.UnitTests
         public Task BulkSend(IEnumerable<Marble> items)
         {
             _marbles.AddRange(items);
-            if (items.LastOrDefault()?.Kind == MarbleKind.OnCompleted)
+            if (items.LastOrDefault()?.Kind == NotificationKind.OnCompleted)
                 _completion.SetResult(null);
-            else if (items.LastOrDefault()?.Kind == MarbleKind.OnError)
+            else if (items.LastOrDefault()?.Kind == NotificationKind.OnError)
                 _completion.SetException(new Exception(items.Last().Value.ToString()));
             return Task.CompletedTask;
         }
@@ -60,7 +60,7 @@ namespace VisualRx.UnitTests
         }
 
         public Marble[] Results => _marbles
-            .Where(m => m.Kind == MarbleKind.OnNext)
+            .Where(m => m.Kind == NotificationKind.OnNext)
             .ToArray();
 
         private readonly TaskCompletionSource<object> _completion = new TaskCompletionSource<object>();

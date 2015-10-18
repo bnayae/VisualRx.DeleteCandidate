@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Security;
@@ -13,6 +14,10 @@ using System.Threading.Tasks;
 using VisualRx.Contracts;
 using VisualRx.ETW.Common;
 using VisualRx.Listeners.Common;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+// TODO: Bnaya, 2015-10, #5, Consider session management strategy
 
 namespace VisualRx.ETW.Listeners
 {
@@ -25,18 +30,56 @@ namespace VisualRx.ETW.Listeners
         private static readonly Action<LogLevel, string, Exception> DefaultLog =
                 (level, message, ex) => Trace.WriteLine($"VisualRx Listener LOG [{level}]: {message}\r\n\t{ex?.ToString()?.Replace(Environment.NewLine, Environment.NewLine + "\t")}");
         private readonly Subject<Marble> _subject = new Subject<Marble>();
-        private bool _disposed = false;
+        private readonly JsonSerializerSettings _setting;
+        private TraceEventSession _session;
+        private readonly Task _initialized;
 
         #region Ctor
 
+        #region Overloads
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="VisualRxEtwListener"/> class.
+        /// Initializes a new instance of the <see cref="VisualRxEtwListener" /> class.
         /// </summary>
+        /// <param name="setting">The _setting.</param>
         /// <param name="log">The log.</param>
         public VisualRxEtwListener(
+            JsonSerializerSettings setting = null,
+            Action<LogLevel, string, Exception> log = null)
+            :this(CancellationToken.None, setting, log)
+        {
+        }
+
+        #endregion // Overloads
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisualRxEtwListener" /> class.
+        /// </summary>
+        /// <param name="token">will call dispose.</param>
+        /// <param name="setting">The _setting.</param>
+        /// <param name="log">The log.</param>
+        public VisualRxEtwListener(
+            CancellationToken token,
+            JsonSerializerSettings setting = null,
             Action<LogLevel, string, Exception> log = null)
         {
+            _setting = setting ?? new JsonSerializerSettings();
+            if (setting == null)
+            {
+                _setting.Converters.Add(new StringEnumConverter());
+                _setting.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
+            }
             Log = log ?? DefaultLog;
+
+            // Today you have to be Admin to turn on ETW events (anyone can write ETW events).   
+            if (!(TraceEventSession.IsElevated() ?? false))
+            {
+                string warn = "To turn on ETW events you need to be Administrator, please run from an Admin process.";
+                Debugger.Break();
+                throw new SecurityException(warn);
+            }
+
+            _initialized = ListenAsync(token);
         }
 
         #endregion // Ctor
@@ -49,31 +92,19 @@ namespace VisualRx.ETW.Listeners
 
         #endregion // Log
 
-        #region Connect
+        #region GetStreamAsync
 
         /// <summary>
-        /// Connects the specified token.
+        /// Gets the stream.
         /// </summary>
-        /// <param name="token">The token.</param>
         /// <returns></returns>
-        public async Task<IObservable<Marble>> Connect(CancellationToken token)
+        public async Task<IObservable<Marble>> GetStreamAsync()
         {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(VisualRxEtwListener));
-
-            // Today you have to be Admin to turn on ETW events (anyone can write ETW events).   
-            if (!(TraceEventSession.IsElevated() ?? false))
-            {
-                string log = "To turn on ETW events you need to be Administrator, please run from an Admin process.";
-                Debugger.Break();
-                throw new SecurityException(log);
-            }
-
-            await ListenAsync(token);
+            await _initialized;
             return _subject;
         }
 
-        #endregion // Connect
+        #endregion // GetStreamAsync
 
         #region ListenAsync
 
@@ -117,7 +148,9 @@ namespace VisualRx.ETW.Listeners
             *****************************************************/
 
             #endregion // Documentation
-            var session = new TraceEventSession(EtwConstants.SessionName);
+            _session = new TraceEventSession(EtwConstants.SessionName);
+            _session.StopOnDispose = true;
+
             #region Documentation
 
             /*****************************************************
@@ -156,57 +189,19 @@ namespace VisualRx.ETW.Listeners
             *  It is OK if Dispose is called more than once.  
             *****************************************************/
             #endregion // Documentation         
-            Console.CancelKeyPress += (sender, e) => session.Dispose();
+            Console.CancelKeyPress += (sender, e) => _session.Dispose();
 
-            #region // session.Source.Dynamic.All += ...
+            #region UnhandledEvents
 
-            #region Documentation
-
-            // For debugging, and demo purposes, hook up a callback for every event that 'Dynamic' knows about (this is not EVERY
-            // event only those know about by DynamiceTraceEventParser).   However the 'UnhandledEvents' handler below will catch
-            // the other ones. 
-
-            #endregion // Documentation
-            session.Source.Dynamic.All += (TraceEvent data) =>
+            _session.Source.UnhandledEvents += (TraceEvent data) =>
             {
+                if ((int)data.ID != 0xFFFE)         // The EventSource manifest events show up as unhanded, filter them out.
+                    Log(LogLevel.Warning, $"Unhandled {data.ToString()}", null);
             };
 
-            #endregion // session.Source.Dynamic.All += ...
+            #endregion // UnhandledEvents
 
-            #region // session.Source.UnhandledEvents += ...
-
-            // The callback above will only be called for events the parser recognizes (in the case of DynamicTraceEventParser, EventSources)
-            // It is sometimes useful to see the other events that are not otherwise being handled.  The source knows about these and you 
-            // can ask the source to send them to you like this.  
-            session.Source.UnhandledEvents += (TraceEvent data) =>
-            {
-                if ((int)data.ID == 0xFFFE)
-                    return;
-                if (data.FormattedMessage.StartsWith("ERROR:"))
-                {
-                    string log = data.FormattedMessage;
-                    Log(LogLevel.Error, log, null);
-                }
-            };
-
-            #endregion // session.Source.UnhandledEvents += ...
-
-            #region // AddCallbackForProviderEvent (specific)
-
-            session.Source.Dynamic.AddCallbackForProviderEvent(
-                  EtwConstants.ProviderName,
-                  nameof(VisualRxEventSource.Send),
-                  (TraceEvent data) =>
-                  {
-                      var b = data.EventData();
-                      var s = Encoding.UTF8.GetString(b);
-                          //WriteLine($"START Event (#{data.PayloadByName("value")}), {data.FormattedMessage}", ConsoleColor.Yellow);
-                      });
-
-
-            #endregion // AddCallbackForProviderEvent (specific)
-
-            #region session.EnableProvider(...)
+            #region _session.EnableProvider(...)
 
             #region Documentation
 
@@ -228,8 +223,8 @@ namespace VisualRx.ETW.Listeners
             *****************************************************/
             #endregion // Documentation         
 
-            var restarted = session.EnableProvider(
-                EtwConstants.ProviderGuid,
+            var restarted = _session.EnableProvider(
+                VisualRxEventSource.ProviderGuid,
                 TraceEventLevel.Always);
 
             #region Validation
@@ -243,21 +238,26 @@ it has been restarted.", null);
 
             #endregion // Validation
 
-            #endregion // session.EnableProvider(...)
+            #endregion // _session.EnableProvider(...)
 
-            #region IObservable<TraceEvent> hits = ...
+            #region IObservable<TraceEvent> sending = ...
 
             IObservable<TraceEvent> sending =
-                    session.Source.Dynamic.Observe(
-                        EtwConstants.ProviderName,
+                    _session.Source.Dynamic.Observe(
+                        VisualRxEventSource.ProviderName,
                         nameof(VisualRxEventSource.Send));
-            sending.Subscribe(onNext: data =>
-                Log(LogLevel.Verbose, $"{data.EventName}", null));
+            sending.Select(m =>
+                {
+                    var json = m.FormattedMessage;
+                    var marble = JsonConvert.DeserializeObject<Marble>(json, _setting);
+                    return marble;
+                })
+                .Subscribe(_subject);
 
-            #endregion // IObservable<TraceEvent> hits = ... 
+            #endregion // IObservable<TraceEvent> sending = ... 
 
             // cancel the session
-            ct.Register(() => session.Source.Dispose());
+            ct.Register(() => _session.Source.Dispose());
 
             // go into a loop processing events can calling the callbacks.  
             // Because this is live data (not from a file)
@@ -265,11 +265,20 @@ it has been restarted.", null);
             // but only because someone called 'source.Dispose()'.  
             Task t = Task.Factory.StartNew(() =>
             {
-                session.Source.Process();
+                try
+                {
+                    _session.Source.Process();
+                }
+                catch (ThreadAbortException) { }
                 Log(LogLevel.Information, $"Session [{EtwConstants.SessionName}] Stopped.", null);
             }, TaskCreationOptions.LongRunning);
 
             await Task.Delay(10); // make sure that session.Source.Process() is listening (avoid racing)
+        }
+
+        private void Source_AllEvents(TraceEvent obj)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion // ListenAsync
@@ -289,8 +298,11 @@ it has been restarted.", null);
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"></param>
-        public void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
+            if (_session == null)
+                return;
+            _session.Dispose();
             _subject.Dispose();
         }
 

@@ -90,7 +90,7 @@ namespace VisualRx.Publishers.Common
                     .Select(m => Unit.Default);
 
             var completionTrigger = _subject
-                    .Where(m => m.Kind != MarbleKind.OnNext)
+                    .Where(m => m.Kind != NotificationKind.OnNext)
                     .Select(m => Unit.Default);
 
             var bufferTrigger = _actualChannel

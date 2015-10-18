@@ -16,7 +16,6 @@ namespace VisualRx.ETW.Publishers
 {
     public sealed class EtwVisualRxChannel : IVisualRxChannel
     {
-        private readonly VisualRxEventSource _etw = new VisualRxEventSource();
         private readonly JsonSerializerSettings _jsonSetting;
 
         #region Ctor
@@ -67,7 +66,7 @@ namespace VisualRx.ETW.Publishers
         {
             foreach (var marble in marbles)
             {
-                _etw.Send(marble, _jsonSetting);
+                VisualRxEventSource.Send(marble, _jsonSetting);
             }
             return Task.CompletedTask;
         }
@@ -124,7 +123,6 @@ namespace VisualRx.ETW.Publishers
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         public void Dispose(bool disposing)
         {
-            _etw.Dispose();
         }
 
         /// <summary>

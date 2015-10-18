@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VisualRx.Contracts;
 using Newtonsoft.Json;
+using System.Reactive;
 
 namespace VisualRx.UnitTests
 {
@@ -29,7 +30,7 @@ namespace VisualRx.UnitTests
             Assert.AreEqual(msg.MachineName, result.MachineName);
             Assert.AreEqual(msg.Offset, result.Offset);
             Assert.AreEqual(msg.GetValue<int>(), result.GetValue<int>());
-            Assert.IsTrue(json.Contains($"\"Kind\":\"{MarbleKind.OnNext}\""));
+            Assert.IsTrue(json.Contains($"\"Kind\":\"{NotificationKind.OnNext}\""));
         }
 
         [TestMethod]
@@ -54,7 +55,7 @@ namespace VisualRx.UnitTests
             Assert.AreEqual(msg.MachineName, result.MachineName);
             Assert.AreEqual(msg.Offset, result.Offset);
             Assert.AreEqual(msg.GetValue<ArgumentException>().Message, result.GetValue<ArgumentException>().Message);
-            Assert.IsTrue(json.Contains($"\"Kind\":\"{MarbleKind.OnError}\""));
+            Assert.IsTrue(json.Contains($"\"Kind\":\"{NotificationKind.OnError}\""));
         }
 
         [TestMethod]
@@ -76,7 +77,7 @@ namespace VisualRx.UnitTests
             Assert.AreEqual(msg.DateCreatedUtc, result.DateCreatedUtc);
             Assert.AreEqual(msg.MachineName, result.MachineName);
             Assert.AreEqual(msg.Offset, result.Offset);
-            Assert.IsTrue(json.Contains($"\"Kind\":\"{MarbleKind.OnCompleted}\""));
+            Assert.IsTrue(json.Contains($"\"Kind\":\"{NotificationKind.OnCompleted}\""));
         }
     }
 }

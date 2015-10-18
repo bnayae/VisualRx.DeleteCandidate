@@ -41,7 +41,7 @@ namespace VisualRx.Publishers.Common
             #region Validation
 
             if (surrogate == null)
-                surrogate = m => JsonConvert.SerializeObject(m);
+                surrogate = m => m;
 
             #endregion Validation
 
