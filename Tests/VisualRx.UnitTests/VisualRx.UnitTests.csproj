@@ -87,7 +87,6 @@
     <Compile Include="Serialization\MarbleBase_Serialization_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\TestVisualRxChannel.cs" />
-    <Compile Include="Tests\PureETW_Tests.cs" />
     <Compile Include="Tests\VisualRx_API_Tests.cs" />
     <Compile Include="VisualRxTestsBase.cs" />
     <Compile Include="Tests\VisualRx_EtwChannel_Tests.cs" />

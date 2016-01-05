@@ -45,7 +45,9 @@ namespace VisualRx.UnitTests
                 xs.Subscribe(v => { });
                 _scheduler.AdvanceBy(5);
 
-                await listenStream.Take(count + 1);
+                await listenStream
+                    //.Do(v => { },() => { })
+                    .Take(count + 1);
                 for (int i = 0; i < count; i++)
                 {
                     Assert.AreEqual(NotificationKind.OnNext,
