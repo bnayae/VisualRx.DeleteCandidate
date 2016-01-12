@@ -11,6 +11,6 @@ namespace VisualRx.Client.WPF
     public class MarbleDiagram
     {
         public string Name { get; set; }
-        public ObservableCollection<Marble> Items { get; set; } = new ObservableCollection<Marble>();
+        public SimpleObservableCollection<Marble> Items { get; set; } = new SimpleObservableCollection<Marble>();
     }
 }

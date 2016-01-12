@@ -10,8 +10,8 @@ namespace VisualRx.Client.WPF
     public class MarbleDiagramTree
     {
         public string Name { get; set; }
-        public ObservableCollection<MarbleDiagramTree> Categories { get; set; } = new ObservableCollection<MarbleDiagramTree>();
-        public ObservableCollection<MarbleDiagram> Items { get; set; } = new ObservableCollection<MarbleDiagram>();
+        public SimpleObservableCollection<MarbleDiagramTree> Categories { get; set; } = new SimpleObservableCollection<MarbleDiagramTree>();
+        public SimpleObservableCollection<MarbleDiagram> Items { get; set; } = new SimpleObservableCollection<MarbleDiagram>();
         public IEnumerable<MarbleDiagram> ChildItems =>
             Items.Concat(Categories.SelectMany(c => c.ChildItems));
     }

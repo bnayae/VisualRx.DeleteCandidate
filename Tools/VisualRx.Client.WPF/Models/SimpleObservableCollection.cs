@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace VisualRx.Client.WPF
 {
-    public class ObservableCollection<T> : IList<T>, INotifyCollectionChanged
+    public class SimpleObservableCollection<T> : IList<T>, INotifyCollectionChanged
             where T : class
     {
         public event NotifyCollectionChangedEventHandler CollectionChanged;

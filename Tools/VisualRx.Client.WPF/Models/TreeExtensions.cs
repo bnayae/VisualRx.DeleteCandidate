@@ -10,7 +10,7 @@ namespace VisualRx.Client.WPF
 {
     static class TreeExtensions
     {
-        public static void ToTree(this ObservableCollection<MarbleDiagramTree> tree, IEnumerable<Marble> items)
+        public static void ToTree(this SimpleObservableCollection<MarbleDiagramTree> tree, IEnumerable<Marble> items)
         {
             foreach (var item in items)
             {
@@ -18,7 +18,7 @@ namespace VisualRx.Client.WPF
             }
         }
 
-        public static void ToTree(this ObservableCollection<MarbleDiagramTree> tree, Marble item)
+        public static void ToTree(this SimpleObservableCollection<MarbleDiagramTree> tree, Marble item)
         {
             var path = $"{item.StreamKey}.{item.MachineName}".Split('.');
             var mi = GetItem(tree, path[0]);
@@ -30,7 +30,7 @@ namespace VisualRx.Client.WPF
             diagram.Items.Add(item);
         }
 
-        private static MarbleDiagramTree GetItem(ObservableCollection<MarbleDiagramTree> tree, string name)
+        private static MarbleDiagramTree GetItem(SimpleObservableCollection<MarbleDiagramTree> tree, string name)
         {
             var mi = tree.FirstOrDefault(m => m.Name == name);
             if (mi == null)

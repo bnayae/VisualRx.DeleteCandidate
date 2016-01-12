@@ -114,7 +114,7 @@
     <Compile Include="Controls\MarbleDiagramRenderer.cs" />
     <Compile Include="Models\MarbleDiagramTree.cs" />
     <Compile Include="Models\MarbleDiagram.cs" />
-    <Compile Include="Models\ObservableCollection.cs" />
+    <Compile Include="Models\SimpleObservableCollection.cs" />
     <Compile Include="Models\ScaleType.cs" />
     <Compile Include="Models\TreeExtensions.cs" />
     <Page Include="MainWindow.xaml">

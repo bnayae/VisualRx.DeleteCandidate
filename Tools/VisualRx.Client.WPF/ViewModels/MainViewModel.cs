@@ -27,7 +27,7 @@ namespace VisualRx.Client.WPF
         }
         #endregion
 
-        public ObservableCollection<MarbleDiagramTree> Tree { get; } = new ObservableCollection<MarbleDiagramTree>();
+        public SimpleObservableCollection<MarbleDiagramTree> Tree { get; } = new SimpleObservableCollection<MarbleDiagramTree>();
 
         public MainViewModel()
         {
