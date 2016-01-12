@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{78AA7CBB-023F-41E0-A9F7-E0F6AA3EA90E}"
 EndProject
@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.ETW.Listeners", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.ETW.Publishers", "Code\Plugins\ETW\VisualRx.ETW.Publishers\VisualRx.ETW.Publishers.csproj", "{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Client.WPF", "Tools\VisualRx.Client.WPF\VisualRx.Client.WPF.csproj", "{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,5 +91,6 @@ Global
 		{4602E191-3E64-4253-AE18-85C519DA8B10} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
+		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D} = {938D69BB-A8CC-4806-96D2-8D21F0759D62}
 	EndGlobalSection
 EndGlobal
