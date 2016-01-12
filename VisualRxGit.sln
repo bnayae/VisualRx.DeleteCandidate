@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.ETW.Publishers", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Client.WPF", "Tools\VisualRx.Client.WPF\VisualRx.Client.WPF.csproj", "{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRx.Demo", "VisualRx.Demo\VisualRx.Demo.csproj", "{103136A9-0BDB-4F62-A680-96350FC40085}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +80,10 @@ Global
 		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{103136A9-0BDB-4F62-A680-96350FC40085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{103136A9-0BDB-4F62-A680-96350FC40085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{103136A9-0BDB-4F62-A680-96350FC40085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{103136A9-0BDB-4F62-A680-96350FC40085}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,5 +98,6 @@ Global
 		{BC77CDD9-7AF5-488B-8708-55388D6BD217} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
 		{90B8A3B2-9D63-4B7C-A6F5-9D4EE3C0DE3C} = {9C919FB8-04E3-4613-8215-1F8F54620A3C}
 		{9EFBE96E-42ED-4415-8E0D-293E43A73C1D} = {938D69BB-A8CC-4806-96D2-8D21F0759D62}
+		{103136A9-0BDB-4F62-A680-96350FC40085} = {78AA7CBB-023F-41E0-A9F7-E0F6AA3EA90E}
 	EndGlobalSection
 EndGlobal
