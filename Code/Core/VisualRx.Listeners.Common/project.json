@@ -6,8 +6,8 @@
   "dependencies": {
     "Microsoft.NETCore": "5.0.0",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
-    "Rx-Main": "2.2.5",
-    "Newtonsoft.Json": "7.0.1"
+    "Newtonsoft.Json": "8.0.2",
+    "Rx-Main": "2.2.5"
   },
   "frameworks": {
     "dotnet": {
