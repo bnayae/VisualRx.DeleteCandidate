@@ -13,11 +13,11 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(1)).Take(10);
-                xs = xs.Monitor("Interval 1 second", 1);
+                xs = xs.Monitor("Where.Interval 1 second", 1);
                 xs = from item in xs 
                      where item % 2 == 0
                      select item;
-                xs = xs.Monitor("Where", 2);
+                xs = xs.Monitor("Where.Filter", 2);
 
                 xs.Wait();
             };

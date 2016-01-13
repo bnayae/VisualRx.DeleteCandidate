@@ -13,9 +13,9 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(0.5)).Take(10);
-                xs = xs.Monitor("Interval", 1);
+                xs = xs.Monitor("Buffer.Interval", 1);
                 var ys = xs.Buffer(3);
-                ys = ys.Monitor("Buffer", 2, lst => string.Join(",", lst.ToArray()));
+                ys = ys.Monitor("Buffer.Buffered", 2, lst => string.Join(",", lst.ToArray()));
 
                 ys.Wait();
             };

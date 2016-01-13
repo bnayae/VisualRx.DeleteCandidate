@@ -13,9 +13,9 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Return(42);
-                xs = xs.Monitor("Return", 1);
+                xs = xs.Monitor("ReturnVsRange.Return", 1);
                 var ys = Observable.Range(10,5);
-                ys = ys.Monitor("Range", 2);
+                ys = ys.Monitor("ReturnVsRange.Range", 2);
                 xs.Subscribe();
 
                 ys.Wait();

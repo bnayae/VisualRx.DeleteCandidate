@@ -14,12 +14,12 @@ namespace VisualRxDemo.Scenarios
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(2))
                     .Select(v => -v).Take(5);
-                xs = xs.Monitor("Interval 1 second", 1);
+                xs = xs.Monitor("Merge.Interval 1 second", 1);
                 var ys = Observable.Timer(TimeSpan.FromSeconds(3), 
                     TimeSpan.FromSeconds(1.5)).Take(6);
-                ys = ys.Monitor("Timer 3 second follow by 0.5 second", 2);
+                ys = ys.Monitor("Merge.Timer 3 second follow by 0.5 second", 2);
                 var zs = Observable.Merge(xs, ys);
-                zs = zs.Monitor("Merge", 3);
+                zs = zs.Monitor("Merge.Merged", 3);
 
                 zs.Wait();
             };

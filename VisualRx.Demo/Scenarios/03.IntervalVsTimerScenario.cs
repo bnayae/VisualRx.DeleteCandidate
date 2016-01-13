@@ -13,9 +13,9 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(1)).Take(5);
-                xs = xs.Monitor("Interval 1 second", 1);
+                xs = xs.Monitor("IntervalVsTimer.Interval 1 second", 1);
                 var ys = Observable.Timer(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(0.5)).Take(10);
-                ys = ys.Monitor("Timer 3 second follow by 0.5 second", 2);
+                ys = ys.Monitor("IntervalVsTimer.Timer 3 second follow by 0.5 second", 2);
                 xs.Subscribe();
 
                 ys.Wait();

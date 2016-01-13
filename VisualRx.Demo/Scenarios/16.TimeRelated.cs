@@ -20,21 +20,21 @@ namespace VisualRxDemo.Scenarios
             IObservable<int> xs = Observable.Generate(0, i => i < 7, i => i + 1, i => i,
                     i => TimeSpan.FromSeconds(i * 0.5));
 
-            xs = xs.Monitor("Source", 1);
+            xs = xs.Monitor("TimeRelated.NonPublished.Source", 1);
             xs = xs.Publish().RefCount();
-            xs = xs.Monitor("Source", 1);
+            xs = xs.Monitor("TimeRelated.Publish.Source", 1.2);
             xs = xs.SubscribeOn(TaskPoolScheduler.Default);
 
             IObservable<Timestamped<int>> timestamps = xs.Timestamp();
-            timestamps = timestamps.Monitor("Timestamp", 2,
+            timestamps = timestamps.Monitor("TimeRelated.Timestamp", 2,
                 stamp => string.Format("{0} at {1:HH:mm:ss}", stamp.Value, stamp.Timestamp));
 
             IObservable<TimeInterval<int>> timeinterval = xs.TimeInterval();
-            timeinterval = timeinterval.Monitor("TimeInterval", 3,
+            timeinterval = timeinterval.Monitor("TimeRelated.TimeInterval", 3,
                 interval => string.Format("{0} gap of {1:ss\\.fff} seconds", interval.Value, interval.Interval));
 
             IObservable<int> timeout = xs.Timeout(TimeSpan.FromSeconds(1.3));
-            timeout = timeout.Monitor("Timeout", 4);
+            timeout = timeout.Monitor("TimeRelated.Timeout", 4);
 
             timeinterval.Subscribe();
             timestamps.Subscribe();

@@ -13,9 +13,9 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(1)).Take(10);
-                xs = xs.Monitor("Interval 1 second", 1);
+                xs = xs.Monitor("Select.Interval 1 second", 1);
                 var ys = from item in xs select new string('*', (int)item);
-                ys = ys.Monitor("Selected", 2);
+                ys = ys.Monitor("Select.Selected", 2);
 
                 ys.Wait();
             };

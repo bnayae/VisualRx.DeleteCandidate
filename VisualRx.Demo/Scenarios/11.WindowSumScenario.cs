@@ -14,15 +14,15 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 IObservable<long> xs = Observable.Interval(TimeSpan.FromSeconds(0.5)).Take(10);
-                xs = xs.Monitor("Interval", 1);
+                xs = xs.Monitor("WindowSum.Interval", 1);
                 IObservable<IObservable<long>> windows = xs.Window(3);
-                windows = windows.MonitorMany("Window", 2);
+                windows = windows.MonitorMany("WindowSum.Window", 2);
 
                 IObservable<long> sums = from win in windows
                            let sum = win.Sum()
                            from item in sum
                            select item;
-                sums = sums.Monitor("Sum", 3);
+                sums = sums.Monitor("WindowSum.Sum", 3);
                 sums.Wait();
             };
         

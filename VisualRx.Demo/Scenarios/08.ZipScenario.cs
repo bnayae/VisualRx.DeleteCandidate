@@ -15,12 +15,12 @@ namespace VisualRxDemo.Scenarios
                 var rnd = new Random();
                 var xs = Observable.Interval(TimeSpan.FromSeconds(1))
                     .Take(6);;
-                xs = xs.Monitor("Interval", 1);
+                xs = xs.Monitor("Zip.Interval", 1);
                 var ys = Observable.Timer(TimeSpan.FromSeconds(2.5),
                     TimeSpan.FromSeconds(1)).Take(6);
-                ys = ys.Monitor("Timer", 2);
+                ys = ys.Monitor("Zip.Timer", 2);
                 var zs = xs.Zip(ys, (item1, item2) => string.Format("{0}, {1}", item1, item2));
-                zs = zs.Monitor("Zip", 3);
+                zs = zs.Monitor("Zip.Ziped", 3);
 
                 zs.Wait();
             };

@@ -14,9 +14,9 @@ namespace VisualRxDemo.Scenarios
         private Action _act = () =>
             {
                 var xs = Observable.Interval(TimeSpan.FromSeconds(0.5)).Take(10);
-                xs = xs.Monitor("Interval", 1);
+                xs = xs.Monitor("Window.Interval", 1);
                 IObservable<IObservable<long>> ys = xs.Window(3);
-                ys = ys.MonitorMany("Window", 2);
+                ys = ys.MonitorMany("Window.Win", 2);
 
                 var sync = new ManualResetEventSlim();
                 ys.Subscribe(win =>

@@ -23,7 +23,7 @@ namespace VisualRxDemo.Scenarios
                 IObservable<Weather> ws = Observable.Generate(0, i => i < 5, i => i + 1, i => (Weather)(i % 6), 
                     i => i == 0? TimeSpan.Zero : TimeSpan.FromSeconds(3));
 
-                ws = ws.Monitor("Weather", 1);
+                ws = ws.Monitor("WeatherMood.Join.ExtensionMethods.Weather", 1);
                 ws = ws.Publish().RefCount();
 
                 #endregion // IObservable<Weather> ws = ...
@@ -33,7 +33,7 @@ namespace VisualRxDemo.Scenarios
                 IObservable<Mood> ms = Observable.Generate(0, i => i < 15, i => i + 1, i => (Mood)(i % 6), 
                     i => i == 0? TimeSpan.FromSeconds(0.5) : TimeSpan.FromSeconds(1));
 
-                ms = ms.Monitor("Moods", 2);
+                ms = ms.Monitor("WeatherMood.Join.ExtensionMethods.Moods", 2);
 
                 #endregion // IObservable<Mood> ms = ...
 
@@ -44,7 +44,7 @@ namespace VisualRxDemo.Scenarios
                            m => Observable.Empty<Unit>(), // closing mood (point)
                            (w /* Weather */, m /* Mood */) => Tuple.Create(w, m));
 
-                result = result.Monitor("Joined", 3, tpl => string.Format("{0}, {1}", tpl.Item1, tpl.Item2));
+                result = result.Monitor("WeatherMood.Join.Joined", 3, tpl => string.Format("{0}, {1}", tpl.Item1, tpl.Item2));
                 result.Wait();
             };
 
