@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using VisualRx.Contracts;
 
@@ -93,7 +94,7 @@ namespace VisualRx.Client.WPF
         private static void Sender_OpenGLDraw(object sender, SharpGL.SceneGraph.OpenGLEventArgs args)
         {
             var control = (OpenGLControl)sender;
-
+            var mousePoint = Mouse.GetPosition(control);
             var gl = args.OpenGL;
 
             gl.ClearColor(1f, 1f, 1f, 1f);
@@ -106,6 +107,8 @@ namespace VisualRx.Client.WPF
             if (!collection.Any())
                 return;
 
+            double tpi = 2 * Math.PI;
+            double t = Math.PI / 20;
             double r = 15;
             double ticksPerScale = 0;
             var refreshRate = GetScaleValue(control);
@@ -114,6 +117,12 @@ namespace VisualRx.Client.WPF
             {
                 case ScaleType.Milliseconds:
                     ticksPerScale = TimeSpan.FromMilliseconds(refreshRate).Ticks;
+                    break;
+                case ScaleType.Centiseconds:
+                    ticksPerScale = TimeSpan.FromMilliseconds(refreshRate * 10).Ticks;
+                    break;
+                case ScaleType.Deciseconds:
+                    ticksPerScale = TimeSpan.FromMilliseconds(refreshRate * 100).Ticks;
                     break;
                 case ScaleType.Seconds:
                     ticksPerScale = TimeSpan.FromSeconds(refreshRate).Ticks;
@@ -146,10 +155,17 @@ namespace VisualRx.Client.WPF
                     if (offsetx > control.ActualWidth)
                         break;
 
+                    var mlx = Math.Abs(mousePoint.X - offsetx);
+                    var mly = Math.Abs(mousePoint.Y - offsety);
+                    if (mlx <= r && mly <= r)
+                        r = 20;
+
                     gl.Begin(BeginMode.Polygon);
-                    for (double i = 0; i < 2 * Math.PI; i += Math.PI / 20)
+                    for (double i = 0; i < tpi; i += t)
                         gl.Vertex(offsetx + Math.Cos(i) * r, offsety + Math.Sin(i) * r);
                     gl.End();
+
+                    r = 15;
                 }
 
                 offsety += 40;

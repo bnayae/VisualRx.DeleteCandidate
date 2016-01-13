@@ -9,6 +9,8 @@ namespace VisualRx.Client.WPF
     public enum ScaleType
     {
         Milliseconds,
+        Centiseconds,
+        Deciseconds,
         Seconds,
         Minutes,
         Houers,

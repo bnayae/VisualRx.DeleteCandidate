@@ -36,9 +36,11 @@
                      Rows="1">
             <ComboBox x:Name="ScaleType">
                 <ComboBoxItem Content="Milliseconds" Tag="0" />
-                <ComboBoxItem Content="Seconds" Tag="1" />
-                <ComboBoxItem Content="Minutes" Tag="2" />
-                <ComboBoxItem Content="Houers" Tag="3" />
+                <ComboBoxItem Content="Centiseconds" Tag="1" />
+                <ComboBoxItem Content="Deciseconds" Tag="2" />
+                <ComboBoxItem Content="Seconds" Tag="3" />
+                <ComboBoxItem Content="Minutes" Tag="4" />
+                <ComboBoxItem Content="Houers" Tag="5" />
             </ComboBox>
 
             <Slider x:Name="ScaleValue"
