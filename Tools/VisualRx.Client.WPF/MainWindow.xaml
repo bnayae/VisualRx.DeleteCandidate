@@ -15,6 +15,7 @@
     <Window.Resources>
         <Thickness x:Key="Margin">5</Thickness>
         <Thickness x:Key="Padding">5</Thickness>
+        <local:BoolArrayToScaleTypeConverter x:Key="BoolArrayToScaleTypeConverter" />
     </Window.Resources>
     <Window.DataContext>
         <local:MainViewModel />
@@ -31,25 +32,38 @@
 
         <TextBox Grid.Row="0" Grid.Column="0" />
 
-        <UniformGrid Grid.Row="0"
-                     Grid.Column="1"
-                     Rows="1">
-            <ComboBox x:Name="ScaleType">
-                <ComboBoxItem Content="Milliseconds" Tag="0" />
-                <ComboBoxItem Content="Centiseconds" Tag="1" />
-                <ComboBoxItem Content="Deciseconds" Tag="2" />
-                <ComboBoxItem Content="Seconds" Tag="3" />
-                <ComboBoxItem Content="Minutes" Tag="4" />
-                <ComboBoxItem Content="Houers" Tag="5" />
-            </ComboBox>
-
-            <Slider x:Name="ScaleValue"
-                    Maximum="100"
-                    Minimum="1"
-                    Style="{StaticResource MaterialDesignDiscreteSlider}" />
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
+                    Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="r1"
+                                 Content="Milliseconds"
+                                 GroupName="ScaleType" />
+                    <RadioButton x:Name="r2"
+                                 Content="Centiseconds"
+                                 GroupName="ScaleType" />
+                    <RadioButton x:Name="r3"
+                                 Content="Deciseconds"
+                                 GroupName="ScaleType" />
+                    <RadioButton x:Name="r4"
+                                 Content="Seconds"
+                                 GroupName="ScaleType" />
+                    <RadioButton x:Name="r5"
+                                 Content="Minutes"
+                                 GroupName="ScaleType" />
+                    <RadioButton x:Name="r6"
+                                 Content="Houers"
+                                 GroupName="ScaleType" />
+                </StackPanel>
+                <Slider x:Name="ScaleValue"
+                        Maximum="100"
+                        Minimum="1"
+                        Style="{StaticResource MaterialDesignDiscreteSlider}" />
+            </StackPanel>
 
             <ToggleButton Content="Pause" Style="{StaticResource MaterialDesignSwitchToggleButton}" />
-        </UniformGrid>
+        </StackPanel>
 
         <TreeView x:Name="treeView"
                   Grid.Row="1"
@@ -68,9 +82,18 @@
                           DrawFPS="True"
                           local:MarbleDiagramRenderer.Render="{Binding SelectedValue.ChildItems,
                                                                        ElementName=treeView}"
-                          local:MarbleDiagramRenderer.ScaleType="{Binding SelectedItem.Tag,
-                                                                          ElementName=ScaleType}"
                           local:MarbleDiagramRenderer.ScaleValue="{Binding Value,
-                                                                           ElementName=ScaleValue}" />
+                                                                           ElementName=ScaleValue}">
+            <local:MarbleDiagramRenderer.ScaleType>
+                <MultiBinding Converter="{StaticResource BoolArrayToScaleTypeConverter}">
+                    <Binding ElementName="r1" Path="IsChecked" />
+                    <Binding ElementName="r2" Path="IsChecked" />
+                    <Binding ElementName="r3" Path="IsChecked" />
+                    <Binding ElementName="r4" Path="IsChecked" />
+                    <Binding ElementName="r5" Path="IsChecked" />
+                    <Binding ElementName="r6" Path="IsChecked" />
+                </MultiBinding>
+            </local:MarbleDiagramRenderer.ScaleType>
+        </gl:OpenGLControl>
     </Grid>
 </Controls:MetroWindow>

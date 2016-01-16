@@ -112,6 +112,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\MarbleDiagramRenderer.cs" />
+    <Compile Include="Converters\BoolArrayToScaleTypeConverter.cs" />
     <Compile Include="Models\MarbleDiagramTree.cs" />
     <Compile Include="Models\MarbleDiagram.cs" />
     <Compile Include="Models\SimpleObservableCollection.cs" />
