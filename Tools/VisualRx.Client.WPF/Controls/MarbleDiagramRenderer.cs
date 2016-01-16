@@ -151,14 +151,20 @@ namespace VisualRx.Client.WPF
 
                 foreach (var marble in diagram.Items)
                 {
-                    var offsetx = (double)marble.Offset.Ticks / ticksPerScale * r + r;
+                    var offsetx = (double)marble.Offset.Ticks / ticksPerScale * r + 30;
                     if (offsetx > control.ActualWidth)
                         break;
 
                     var mlx = Math.Abs(mousePoint.X - offsetx);
                     var mly = Math.Abs(mousePoint.Y - offsety);
                     if (mlx <= r && mly <= r)
+                    {
                         r = 20;
+
+                        gl.DrawText((int)offsetx - 30, (int)control.ActualHeight - offsety - 30, 0, 0, 0, "Courier New", 12, marble.Value ?? "Marble");
+
+                        gl.Color(color.ScR, color.ScG, color.ScB);
+                    }
 
                     gl.Begin(BeginMode.Polygon);
                     for (double i = 0; i < tpi; i += t)
@@ -168,7 +174,7 @@ namespace VisualRx.Client.WPF
                     r = 15;
                 }
 
-                offsety += 40;
+                offsety += 60;
             }
         }
     }
